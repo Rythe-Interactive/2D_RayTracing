@@ -2,54 +2,54 @@ public class Line
 {
   public Line(PVector start, PVector dir)
   {
-    this.start_ = start;
-    this.dir_ = dir.normalize();
+    this.m_start = start;
+    this.m_dir = dir.normalize();
     
-    normal_ = new PVector(-dir.y, dir.x);
-    normal_.normalize();
+    m_normal = new PVector(-dir.y, dir.x);
+    m_normal.normalize();
   }
   
   public void set(PVector start, PVector dir)
   {
-    this.start_ = start;
-    this.dir_ = dir;
+    this.m_start = start;
+    this.m_dir = dir;
     
-    normal_ = new PVector(-dir.y, dir.x);
-    normal_.normalize();
+    m_normal = new PVector(-dir.y, dir.x);
+    m_normal.normalize();
   }
   
   public void render()
   {
-    line(start_.x, start_.y, start_.x+dir_.x*500, start_.y+dir_.y*500);
+    line(m_start.x, m_start.y, m_start.x+m_dir.x*500, m_start.y+m_dir.y*500);
   }
   
   public boolean collideWith(LineSegment other)
   {
     PVector startToStart = new PVector(other.end().x, other.end().y);
-    startToStart.sub(start_);
+    startToStart.sub(m_start);
     
     //project distance line on normal
-    float distToLine = startToStart.dot(normal_);
-    PVector line = vsub(other.start_, other.end_);
-    float totalLine = -line.dot(normal_);
+    float distToLine = startToStart.dot(m_normal);
+    PVector line = vsub(other.m_start, other.m_end);
+    float totalLine = -line.dot(m_normal);
     
     float timeOfImpact = 1 - distToLine / totalLine;
     if(timeOfImpact < 0 || timeOfImpact > 1) return false;
     
-    PVector vec = vscale(vsub(other.start_, other.end_), timeOfImpact);
-    PVector poi = vsub(other.start_, vec);
+    PVector vec = vscale(vsub(other.m_start, other.m_end), timeOfImpact);
+    PVector poi = vsub(other.m_start, vec);
     
     //we may assume that the 'end' of the line is at the poi
-    PVector toPoi = vsub(poi, start_);
+    PVector toPoi = vsub(poi, m_start);
     
     //check if poi is behind the line (before the start)
-    if(vnormalized(toPoi).dot(vnormalized(dir_)) < 0)
+    if(vnormalized(toPoi).dot(vnormalized(m_dir)) < 0)
     {
       return false;
     }
     
-    float distToPoi = toPoi.dot(vnormalized(vsub(poi, start_)));
-    if(distToPoi < 0 || distToPoi > vlength(vsub(poi, start_)))
+    float distToPoi = toPoi.dot(vnormalized(vsub(poi, m_start)));
+    if(distToPoi < 0 || distToPoi > vlength(vsub(poi, m_start)))
     {
       println("out of line");
       return false;
@@ -62,37 +62,22 @@ public class Line
     }
   }
   
-  //public boolean collideWith(PVector point, float radius)
-  //{
-  //  PVector startToCenter = new PVector(point.x, point.y);
-  //  startToCenter.sub(start_);
-    
-  //  PVector line = vsub(end_, start_);
-  //  float distOverLine = startToCenter.dot(vnormalized(line));
-  //  if(distOverLine < -radius || distOverLine > vlength(line)+radius) return false;
-    
-  //  //project distance line on normal
-  //  float dist = startToCenter.dot(normal_);
-  //  if(abs(dist) < radius) return true;
-  //  else return false;
-  //}
-  
   public PVector start()
   {
-    return new PVector(start_.x, start_.y);
+    return new PVector(m_start.x, m_start.y);
   }
   
   public PVector dir()
   {
-    return new PVector(dir_.x, dir_.y);
+    return new PVector(m_dir.x, m_dir.y);
   }
   
   public PVector normal()
   {
-    return new PVector(normal_.x, normal_.y);
+    return new PVector(m_normal.x, m_normal.y);
   }
   
-  private PVector start_;
-  private PVector dir_;
-  private PVector normal_;
+  private PVector m_start;
+  private PVector m_dir;
+  private PVector m_normal;
 }

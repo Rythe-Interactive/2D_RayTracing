@@ -1,83 +1,80 @@
-LineSegment leftTopLine;
+LineSegment[] leftTopLine;
 LineSegment leftBottomLine;
 LineSegment rightTopLine;
 LineSegment rightBottomLine;
 
 Ray ray;
-
-LineSegment rand;
-LineSegment randTwin;
+Ray inverse;
 
 void setup()
 {
-  leftTopLine = new LineSegment(new PVector(50, 50), new PVector(50, 450));
-  leftBottomLine = new LineSegment(new PVector(50, 450), new PVector(50, 50));
-  rightTopLine = new LineSegment(new PVector(450, 50), new PVector(450, 450));
-  rightBottomLine = new LineSegment(new PVector(450, 450), new PVector(450, 50));
+  smooth(8);
+  leftTopLine = new LineSegment[2];
+  leftTopLine[0] = new LineSegment(new PVector(100, 50), new PVector(50, 250));
+  leftTopLine[1] = new LineSegment(new PVector(50, 250), new PVector(100, 50));
+  leftTopLine[0].setColor(new Color(0.9, 0.5, 0));
+  leftTopLine[1].setColor(new Color(0.9, 0.5, 0));
   
-  ray = new Ray(new PVector(250, 250), new PVector(mouseX, mouseY), 4);
+  leftBottomLine = new LineSegment(new PVector(100, 450), new PVector(50, 250));
+  leftBottomLine.setColor(new Color(0.2, 0.9, 0.1));
   
-  rand = new LineSegment(new PVector(250, 100), vscale(PVector.random2D(), 500));
-  randTwin = new LineSegment(rand.end(), rand.start());
+  rightTopLine = new LineSegment(new PVector(400, 50), new PVector(450, 250));
+  rightTopLine.setColor(new Color(0, 0.5, 0.9));
+  
+  rightBottomLine = new LineSegment(new PVector(400, 450), new PVector(450, 250));
+  rightBottomLine.setColor(new Color(0.9, 0.9, 0.9));
+  
+  ray = new Ray(new PVector(250, 250), new PVector(mouseX, mouseY), 0);
+  ray.setColor(new Color(1, 1, 1));
+  
+  inverse = new Ray(new PVector(250, 250), new PVector(500-mouseX, 500-mouseY), 4);
   
   size(500, 500);
+  frameRate(1000);
+  
+  textAlign(CENTER, CENTER);
 }
 
 void draw()
 {
-  background(255);
+  background(0);
   
-  ray.set(ray.start(), new PVector(mouseX-250, mouseY-250));
+  PVector mouseDir = new PVector(mouseX-250, mouseY-250);
+  mouseDir.normalize();
+  ray.set(new PVector(250, 250).add(mouseDir), mouseDir );
+  inverse.set(new PVector(250, 250).sub(vscale(mouseDir, -1)), vscale(mouseDir, -1));
   
-  stroke(0);
-  leftTopLine.render();
-  leftBottomLine.render();
-  rightTopLine.render();
-  ray.render();
-  //rand.render();
-  //randTwin.render();
-  
-  //line.collideWith(rand);
-  //line.collideWith(randTwin);
-  ray.collideWith(leftTopLine);
+  ray.collideWith(leftTopLine[0]);
+  ray.collideWith(leftTopLine[1]);
   ray.collideWith(leftBottomLine);
   ray.collideWith(rightTopLine);
   ray.collideWith(rightBottomLine);
-  //ray.collideWith(rand);
-  //ray.collideWith(randTwin);
-  //stroke(255, 0 ,0);
-  //line.renderNormal();
-  //other.renderNormal();
   
-  text(frameRate, 5, 10);
-}
-
-void keyPressed()
-{
-  if(key == ' ')
-  {
-    rand.set(rand.start(), vscale(PVector.random2D(), 500));
-    randTwin.set(rand.end(), rand.start());
-  }
+  ray.renderNormal();
   
-  if(key == 'd')
-  {
-    rand.set(rand.start(), vadd(rand.end(), new PVector(5, 0)));
-    randTwin.set(rand.end(), rand.start());
-  }
-  if(key == 'a')
-  {
-    rand.set(rand.start(), vadd(rand.end(), new PVector(-5, 0)));
-    randTwin.set(rand.end(), rand.start());
-  }
-  if(key == 's')
-  {
-    rand.set(rand.start(), vadd(rand.end(), new PVector(0, 5)));
-    randTwin.set(rand.end(), rand.start());
-  }
-  if(key == 'w')
-  {
-    rand.set(rand.start(), vadd(rand.end(), new PVector(0, -5)));
-    randTwin.set(rand.end(), rand.start());
-  }
+  //inverse.collideWith(leftTopLine[0]);
+  //inverse.collideWith(leftTopLine[1]);
+  //inverse.collideWith(leftBottomLine);
+  //inverse.collideWith(rightTopLine);
+  //inverse.collideWith(rightBottomLine);
+  
+  
+  leftTopLine[0].render();
+  leftTopLine[0].renderNormal();
+  leftTopLine[1].render();
+  leftTopLine[1].renderNormal();
+  leftBottomLine.render();
+  rightTopLine.render();
+  rightBottomLine.render();
+  ray.render();
+  //inverse.render();
+  
+  fill(80);
+  stroke(80);
+  textSize(13);
+  text(frameRate, 30, 10);
+  fill(255);
+  stroke(255);
+  textSize(12);
+  text(frameRate, 30, 10);
 }

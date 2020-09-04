@@ -2,71 +2,105 @@ public class Ray
 {
   public Ray(PVector start, PVector dir, int maxBounces)
   {
-    this.start_ = start;
-    this.dir_ = dir.normalize();
+    this.m_start = start;
+    this.m_diriction = dir.normalize();
 
-    normal_ = new PVector(-dir.y, dir.x);
-    normal_.normalize();
+    m_normal = new PVector(-dir.y, dir.x);
+    m_normal.normalize();
 
-    bounces_ = new ArrayList<Ray>();
-    lineSegments_ = new ArrayList<LineSegment>();
-    maxBounces_ = maxBounces;
+    m_bounces = new ArrayList<Ray>();
+    m_lineSegments = new ArrayList<LineSegment>();
+    m_maxBounces = maxBounces;
+    
+    m_color = new Color(1,1,1);
   }
 
   public void set(PVector start, PVector dir)
   {
-    this.start_ = start;
-    this.dir_ = dir;
+    this.m_start = start;
+    this.m_diriction = dir;
 
-    normal_ = new PVector(-dir.y, dir.x);
-    normal_.normalize();
+    m_normal = new PVector(-dir.y, dir.x);
+    m_normal.normalize();
+  }
+  
+  public void setColor(Color cl)
+  {
+    m_color = cl;
   }
 
   public void render()
   {
-    for (int i = 0; i < bounces_.size(); ++i)
+    // This function is also used as a reset for which bounces have been found
+    // 
+    for (int i = 0; i < m_bounces.size(); ++i)
     {
-      bounces_.get(i).render();
+      m_bounces.get(i).render();
     }
-    bounces_.clear();
-    lineSegments_.clear();
+    m_bounces.clear();
+    m_lineSegments.clear();
+    
+    stroke(m_color.get());
 
-    if (hasEnd_) line(start_.x, start_.y, end_.x, end_.y);
-    else line(start_.x, start_.y, start_.x+dir_.x*500, start_.y+dir_.y*500);
-    hasEnd_ = false;
+    if (m_hasEnd) line(m_start.x, m_start.y, m_end.x, m_end.y);
+    else line(m_start.x, m_start.y, m_start.x+m_diriction.x*500, m_start.y+m_diriction.y*500);
+    m_hasEnd = false;
+  }
+  
+  public void renderNormal()
+  {
+    line(m_start.x, m_start.y, m_start.x + vscale(m_normal, 10).x, m_start.y + vscale(m_normal, 10).y);
   }
 
   public boolean collideWith(LineSegment other)
   {
-    lineSegments_.add(other);
-    for (int i = 0; i < bounces_.size(); ++i)
+    m_lineSegments.add(other);
+    for (int i = 0; i < m_bounces.size(); ++i)
     {
-      bounces_.get(i).collideWith(other);
+      m_bounces.get(i).collideWith(other);
     }
 
     PVector startToStart = new PVector(other.end().x, other.end().y);
-    startToStart.sub(start_);
+    startToStart.sub(m_start);
 
     //project distance line on normal
-    float distToLine = startToStart.dot(normal_);
-    PVector line = vsub(other.start_, other.end_);
-    float totalLine = -line.dot(normal_);
+    float distToLine = startToStart.dot(m_normal);
+    PVector line = vsub(other.m_start, other.m_end);
+    float totalLine = -line.dot(m_normal);
 
     float timeOfImpact = 1 - distToLine / totalLine;
-    if (timeOfImpact < 0 || timeOfImpact > 1) return false;
+    if (timeOfImpact < 0 || timeOfImpact > 1)
+    {
+      
+      startToStart = new PVector(other.end().x, other.end().y);
+      startToStart.sub(m_start);
 
-    PVector otherStartToPoi = vscale(vsub(other.end_, other.start_), timeOfImpact);
-    PVector poi = vadd(other.start_, otherStartToPoi);
+      //project distance line on normal
+      distToLine = startToStart.dot(m_normal);
+      line = vsub(other.m_start, other.m_end);
+      totalLine = -line.dot(m_normal);
 
-    if (vlength(otherStartToPoi) > vlength(vsub(other.end_, other.start_)))
+      timeOfImpact = 1 - distToLine / totalLine;
+      
+      if (timeOfImpact < 0 || timeOfImpact > 1)
+      {
+        println(millis() + ": Returned false @ time of impact");
+        return false;
+      }
+    }
+
+    PVector otherStartToPoi = vscale(vsub(other.m_end, other.m_start), timeOfImpact);
+    PVector poi = vadd(other.m_start, otherStartToPoi);
+
+    if (vlength(otherStartToPoi) > vlength(vsub(other.m_end, other.m_start)))
     {
       //println("poi is over the end of line");
       return false;
     }
 
     //this can also be seen as the full line from here
-    PVector thisToPoi = vsub(poi, start_);
-    if (thisToPoi.dot(vnormalized(dir_)) < 0)
+    PVector thisToPoi = vsub(poi, m_start);
+    if (thisToPoi.dot(vnormalized(m_diriction)) < 0)
     {
       //println("poi was before the start of the ray");
       return false;
@@ -79,27 +113,30 @@ public class Ray
       return false;
     } else
     {
-      if (hasEnd_)
+      if (m_hasEnd)
       {
-        if (vlength(vsub(end_, start_)) < vlength(vsub(poi, start_)))
+        if (vlength(vsub(m_end, m_start)) < vlength(vsub(poi, m_start)))
         {
           return true;
         }
       }
-      fill(0, 0, 255);
+      Color mixColor = m_color.clone().mult(other.getColor());
+      fill(mixColor.get());
       ellipse(poi.x, poi.y, 10, 10);
-      end_ = poi;
-      hasEnd_ = true;
+      m_end = poi;
+      m_hasEnd = true;
 
-      if (maxBounces_ != 0)
+      if (m_maxBounces != 0)
       {
         //make a new ray as a bounce to this one
-        PVector reflectDir = vnormalized(vreflect(dir_, other.normal()));
-        Ray reflect = new Ray(vadd(poi, vscale(reflectDir, 5)), reflectDir, maxBounces_-1);
-        bounces_.add(reflect);
-        for (int i = 0; i < lineSegments_.size(); ++i)
+        PVector reflectDir = vnormalized(vreflect(m_diriction, other.normal()));
+        
+        Ray reflect = new Ray(vadd(poi, vscale(reflectDir, 5)), reflectDir, m_maxBounces-1);
+        reflect.setColor( mixColor );
+        m_bounces.add(reflect);
+        for (int i = 0; i < m_lineSegments.size(); ++i)
         {
-          reflect.collideWith(lineSegments_.get(i));
+          reflect.collideWith(m_lineSegments.get(i));
         }
       }
 
@@ -107,43 +144,29 @@ public class Ray
     }
   }
 
-  //public boolean collideWith(PVector point, float radius)
-  //{
-  //  PVector startToCenter = new PVector(point.x, point.y);
-  //  startToCenter.sub(start_);
-
-  //  PVector line = vsub(end_, start_);
-  //  float distOverLine = startToCenter.dot(vnormalized(line));
-  //  if(distOverLine < -radius || distOverLine > vlength(line)+radius) return false;
-
-  //  //project distance line on normal
-  //  float dist = startToCenter.dot(normal_);
-  //  if(abs(dist) < radius) return true;
-  //  else return false;
-  //}
-
   public PVector start()
   {
-    return new PVector(start_.x, start_.y);
+    return new PVector(m_start.x, m_start.y);
   }
 
   public PVector dir()
   {
-    return new PVector(dir_.x, dir_.y);
+    return new PVector(m_diriction.x, m_diriction.y);
   }
 
   public PVector normal()
   {
-    return new PVector(normal_.x, normal_.y);
+    return new PVector(m_normal.x, m_normal.y);
   }
 
-  private PVector start_;
-  private PVector dir_;
-  private PVector end_;
-  private boolean hasEnd_ = false;
-  private PVector normal_;
-  private int maxBounces_;
+  private PVector m_start;
+  private PVector m_diriction;
+  private PVector m_end;
+  private boolean m_hasEnd = false;
+  private PVector m_normal;
+  private int m_maxBounces;
+  private Color m_color;
 
-  private ArrayList<Ray> bounces_;
-  private ArrayList<LineSegment> lineSegments_;
+  private ArrayList<Ray> m_bounces;
+  private ArrayList<LineSegment> m_lineSegments;
 }
