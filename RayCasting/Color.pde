@@ -13,7 +13,15 @@ class Color
     r = cr;
     g = cg;
     b = cb;
-    a = 255;
+    a = 1;
+  }
+  
+  public Color(Color cl)
+  {
+    r = cl.r;
+    g = cl.g;
+    b = cl.b;
+    a = cl.a;
   }
   
   public void set(float cr, float cg, float cb, float ca)
@@ -29,7 +37,7 @@ class Color
     r = cr;
     g = cg;
     b = cb;
-    a = 255;
+    a = 1;
   }
   
   public color get()

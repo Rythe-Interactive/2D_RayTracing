@@ -28,6 +28,11 @@ PVector vscale(PVector vec, float scale)
   return copy.mult(scale);
 }
 
+float vcross(PVector vec0, PVector vec1)
+{
+  return vec0.x * vec1.y - vec0.y * vec1.x;
+}
+
 PVector vreflect(PVector vec, PVector normal)
 {
   PVector n = new PVector(normal.x, normal.y);

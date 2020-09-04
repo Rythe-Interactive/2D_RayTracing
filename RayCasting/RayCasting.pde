@@ -1,4 +1,4 @@
-LineSegment[] leftTopLine;
+LineSegment leftTopLine;
 LineSegment leftBottomLine;
 LineSegment rightTopLine;
 LineSegment rightBottomLine;
@@ -9,11 +9,8 @@ Ray inverse;
 void setup()
 {
   smooth(8);
-  leftTopLine = new LineSegment[2];
-  leftTopLine[0] = new LineSegment(new PVector(100, 50), new PVector(50, 250));
-  leftTopLine[1] = new LineSegment(new PVector(50, 250), new PVector(100, 50));
-  leftTopLine[0].setColor(new Color(0.9, 0.5, 0));
-  leftTopLine[1].setColor(new Color(0.9, 0.5, 0));
+  leftTopLine = new LineSegment(new PVector(100, 50), new PVector(50, 250));
+  leftTopLine.setColor(new Color(0.9, 0.5, 0));
   
   leftBottomLine = new LineSegment(new PVector(100, 450), new PVector(50, 250));
   leftBottomLine.setColor(new Color(0.2, 0.9, 0.1));
@@ -24,7 +21,7 @@ void setup()
   rightBottomLine = new LineSegment(new PVector(400, 450), new PVector(450, 250));
   rightBottomLine.setColor(new Color(0.9, 0.9, 0.9));
   
-  ray = new Ray(new PVector(250, 250), new PVector(mouseX, mouseY), 0);
+  ray = new Ray(new PVector(250, 250), new PVector(mouseX, mouseY), 1);
   ray.setColor(new Color(1, 1, 1));
   
   inverse = new Ray(new PVector(250, 250), new PVector(500-mouseX, 500-mouseY), 4);
@@ -44,8 +41,7 @@ void draw()
   ray.set(new PVector(250, 250).add(mouseDir), mouseDir );
   inverse.set(new PVector(250, 250).sub(vscale(mouseDir, -1)), vscale(mouseDir, -1));
   
-  ray.collideWith(leftTopLine[0]);
-  ray.collideWith(leftTopLine[1]);
+  ray.collideWith(leftTopLine);
   ray.collideWith(leftBottomLine);
   ray.collideWith(rightTopLine);
   ray.collideWith(rightBottomLine);
@@ -59,10 +55,8 @@ void draw()
   //inverse.collideWith(rightBottomLine);
   
   
-  leftTopLine[0].render();
-  leftTopLine[0].renderNormal();
-  leftTopLine[1].render();
-  leftTopLine[1].renderNormal();
+  leftTopLine.render();
+  leftTopLine.renderNormal();
   leftBottomLine.render();
   rightTopLine.render();
   rightBottomLine.render();

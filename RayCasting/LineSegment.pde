@@ -101,9 +101,21 @@ public class LineSegment
     return new PVector(m_end.x, m_end.y);
   }
   
-  public PVector normal()
+  public PVector getLine()
+  {
+    return vsub(m_end, m_start);
+  }
+  
+  public PVector getNormal()
   {
     return new PVector(m_normal.x, m_normal.y);
+  }
+  
+  public LineSegment inverse()
+  {
+    LineSegment inverse = new LineSegment(m_end, m_start);
+    inverse.setColor(m_color);
+    return inverse;
   }
   
   private PVector m_start;
