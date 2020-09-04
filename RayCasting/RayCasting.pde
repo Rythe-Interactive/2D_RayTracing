@@ -36,7 +36,16 @@ void setup()
   {
     PVector dir = PVector.fromAngle(PI*2/rayCount*i);
     ray[i] = new Ray(new PVector(0,0), dir, bounces);
+    
+    ray[i].addLineSegmentCollider(topLine);
+    ray[i].addLineSegmentCollider(rightTopLine);
+    ray[i].addLineSegmentCollider(leftTopLine);
+    ray[i].addLineSegmentCollider(leftBottomLine);
+    ray[i].addLineSegmentCollider(rightBottomLine);
+    ray[i].addLineSegmentCollider(bottomLine);
   }
+  
+  
   
   size(500, 500);
   frameRate(1000);
@@ -54,13 +63,7 @@ void draw()
   for(int i = 0; i < rayCount; ++i)
   {
     ray[i].set(vadd(new PVector(mouseX, mouseY), vscale(ray[i].dir(), 10)),ray[i].dir());
-    
-    ray[i].collideWith(topLine);
-    ray[i].collideWith(rightTopLine);
-    ray[i].collideWith(leftTopLine);
-    ray[i].collideWith(leftBottomLine);
-    ray[i].collideWith(rightBottomLine);
-    ray[i].collideWith(bottomLine);
+    ray[i].update();
     
     ray[i].render();
   }
