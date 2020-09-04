@@ -2,14 +2,18 @@ LineSegment leftTopLine;
 LineSegment leftBottomLine;
 LineSegment rightTopLine;
 LineSegment rightBottomLine;
+LineSegment topLine;
+LineSegment bottomLine;
 
-Ray ray;
-Ray inverse;
+Ray[] ray;
+int rayCount = 30;
+
+int bounces = 4;
 
 void setup()
 {
   smooth(8);
-  leftTopLine = new LineSegment(new PVector(100, 50), new PVector(50, 250));
+  leftTopLine = new LineSegment(new PVector(101, 51), new PVector(49, 250));
   leftTopLine.setColor(new Color(0.9, 0.5, 0));
   
   leftBottomLine = new LineSegment(new PVector(100, 450), new PVector(50, 250));
@@ -21,10 +25,18 @@ void setup()
   rightBottomLine = new LineSegment(new PVector(400, 450), new PVector(450, 250));
   rightBottomLine.setColor(new Color(0.9, 0.9, 0.9));
   
-  ray = new Ray(new PVector(250, 250), new PVector(mouseX, mouseY), 1);
-  ray.setColor(new Color(1, 1, 1));
+  topLine = new LineSegment(new PVector(100, 50), new PVector(400, 50));
+  topLine.setColor(new Color(1, 1, 0));
   
-  inverse = new Ray(new PVector(250, 250), new PVector(500-mouseX, 500-mouseY), 4);
+  bottomLine = new LineSegment(new PVector(100, 450), new PVector(400, 450));
+  bottomLine.setColor(new Color(1, 0, 1));
+  
+  ray = new Ray[rayCount];
+  for(int i = 0; i < rayCount; ++i)
+  {
+    PVector dir = PVector.fromAngle(PI*2/rayCount*i);
+    ray[i] = new Ray(new PVector(0,0), dir, bounces);
+  }
   
   size(500, 500);
   frameRate(1000);
@@ -38,37 +50,52 @@ void draw()
   
   PVector mouseDir = new PVector(mouseX-250, mouseY-250);
   mouseDir.normalize();
-  ray.set(new PVector(250, 250).add(mouseDir), mouseDir );
-  inverse.set(new PVector(250, 250).sub(vscale(mouseDir, -1)), vscale(mouseDir, -1));
   
-  ray.collideWith(leftTopLine);
-  ray.collideWith(leftBottomLine);
-  ray.collideWith(rightTopLine);
-  ray.collideWith(rightBottomLine);
+  for(int i = 0; i < rayCount; ++i)
+  {
+    ray[i].set(vadd(new PVector(mouseX, mouseY), vscale(ray[i].dir(), 10)),ray[i].dir());
+    
+    ray[i].collideWith(topLine);
+    ray[i].collideWith(rightTopLine);
+    ray[i].collideWith(leftTopLine);
+    ray[i].collideWith(leftBottomLine);
+    ray[i].collideWith(rightBottomLine);
+    ray[i].collideWith(bottomLine);
+    
+    ray[i].render();
+  }
   
-  ray.renderNormal();
-  
-  //inverse.collideWith(leftTopLine[0]);
-  //inverse.collideWith(leftTopLine[1]);
-  //inverse.collideWith(leftBottomLine);
-  //inverse.collideWith(rightTopLine);
-  //inverse.collideWith(rightBottomLine);
-  
-  
+  topLine.render();
   leftTopLine.render();
-  leftTopLine.renderNormal();
   leftBottomLine.render();
   rightTopLine.render();
   rightBottomLine.render();
-  ray.render();
-  //inverse.render();
+  bottomLine.render();
   
   fill(80);
   stroke(80);
   textSize(13);
   text(frameRate, 30, 10);
+  text(bounces, width-30, 10);
   fill(255);
   stroke(255);
   textSize(12);
   text(frameRate, 30, 10);
+  text(bounces, width-30, 10);
+}
+
+void keyPressed()
+{
+  if(key == '-')
+  {
+    --bounces;
+  }
+  if(key == '+')
+  {
+    ++bounces;
+  }
+  for(int i = 0; i < rayCount; ++i)
+  {
+    ray[i].setMaxBounces(bounces);
+  }
 }

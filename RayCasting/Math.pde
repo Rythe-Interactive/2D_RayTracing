@@ -39,3 +39,8 @@ PVector vreflect(PVector vec, PVector normal)
   PVector reflect = vsub(vec, vscale(n, 2* n.dot(vec)));
   return reflect;
 }
+
+float degToRad(float deg)
+{
+  return deg / 180 * PI;
+}

@@ -24,6 +24,11 @@ public class Ray
     m_normal.normalize();
   }
   
+  public void setMaxBounces(int bounces)
+  {
+    m_maxBounces = bounces;
+  }
+  
   public void setColor(Color cl)
   {
     m_color = cl;
@@ -77,10 +82,12 @@ public class Ray
       
       PVector poi = vadd(m_start, vscale(m_direction, u));
       //collision
-      println("collision");
+      
+      if(m_hasEnd && vlength(vsub(poi, m_start)) >= vlength(vsub(m_end, m_start))) return false;
       
       Color mixColor = m_color.clone().mult(other.getColor());
       fill(mixColor.get());
+      noStroke();
       ellipse(poi.x, poi.y, 10, 10);
       
       m_hasEnd = true;
@@ -95,13 +102,12 @@ public class Ray
         
         for(int i = 0; i < m_lineSegments.size(); ++i)
         {
-          ray.collideWith(m_lineSegments.get(i));
+          bounce.collideWith(m_lineSegments.get(i));
         }
       }
       
       return true;
     }
-    println("No collision");
     return false;
   }
 
