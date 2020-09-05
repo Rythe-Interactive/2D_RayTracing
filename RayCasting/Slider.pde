@@ -4,6 +4,8 @@ class Slider
   {
     m_position = new PVector(posX, posY);
     m_size = new PVector(w, h);
+    m_color = color(255, 255, 255);
+    m_knobColor = color(120, 120, 120);
   }
 
   public void update()
@@ -12,7 +14,7 @@ class Slider
     PVector knobSize = getKnobSize();
     if (mousePressed)
     {
-      if ( mouseX >= knobPos.x - knobSize.x && mouseX <= knobPos.x + knobSize.x && mouseY >= knobPos.y - knobSize.y && mouseY <= knobPos.y + knobSize.y)
+      if ( mouseX >= knobPos.x - knobSize.x/2 && mouseX <= knobPos.x + knobSize.x/2 && mouseY >= knobPos.y - knobSize.y/2 && mouseY <= knobPos.y + knobSize.y/2)
       {
         m_holdingSlider = true;
       }
@@ -30,10 +32,10 @@ class Slider
   public void render()
   {
     rectMode(CENTER);
-    fill(255);
+    fill(m_color);
     stroke(0);
     rect(m_position.x, m_position.y, m_size.x, m_size.y);
-    fill(0, 0, 255);
+    fill(m_knobColor);
     PVector knobPos = getKnobPosition();
     PVector knobSize = getKnobSize();
     rect(knobPos.x, knobPos.y, knobSize.x, knobSize.y);
@@ -49,6 +51,21 @@ class Slider
   public float getValue()
   {
     return m_value;
+  }
+  
+  public boolean isChanging()
+  {
+    return m_holdingSlider;
+  }
+  
+  public void setColor(color cl)
+  {
+    m_color = cl;
+  }
+  
+  public void setKnoColor(color cl)
+  {
+    m_knobColor = cl;
   }
 
   public void setValue(float value)
@@ -70,4 +87,6 @@ class Slider
   private PVector m_size;
   private PVector m_position;
   private boolean m_holdingSlider = false;
+  private color m_color;
+  private color m_knobColor;
 }

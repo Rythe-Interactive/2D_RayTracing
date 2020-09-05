@@ -153,13 +153,42 @@ class SandBoxScene extends Scene
   {
     m_lights = new ArrayList<Light>();
     m_lineSegments = new ArrayList<LineSegment>();
+    
+    
+    m_colorSliders = new Slider[3];
+    m_colorSliders[0] = new Slider(width-100, 40, 20, 50);
+    m_colorSliders[0].setValue(1);
+    m_colorSliders[1] = new Slider(width-60, 40, 20, 50);
+    m_colorSliders[1].setValue(1);
+    m_colorSliders[2] = new Slider(width-20, 40, 20, 50);
+    m_colorSliders[2].setValue(1);
+    
+    for(int i = 0; i < 3; ++i)
+    {
+      m_colorSliders[i].setKnoColor(color(255));
+    }
   }
 
   public void update()
   {
     background(0);
 
-    if (mousePressed)
+    boolean changingSlider = false;
+
+    fill(getColorFromSliders().get());
+    rect(width-60, 80, 100, 10);
+    for(int i = 0; i < 3; ++i)
+    {
+      m_colorSliders[i].update();
+      if(m_colorSliders[i].isChanging()) changingSlider = true;
+      m_colorSliders[i].render();
+    }
+    
+    m_colorSliders[0].setColor(color(m_colorSliders[0].getValue()*255, 0, 0));
+    m_colorSliders[1].setColor(color(0, m_colorSliders[1].getValue()*255, 0));
+    m_colorSliders[2].setColor(color(0, 0, m_colorSliders[2].getValue()*255));
+
+    if (mousePressed && !changingSlider)
     {
       if (!m_pressingMouse)
       {
@@ -174,6 +203,7 @@ class SandBoxScene extends Scene
           {
             PVector end = new PVector(mouseX, mouseY);
             LineSegment line = new LineSegment(m_startOfNextLine, end);
+            line.setColor(getColorFromSliders());
             m_startOfNextLine = null;
             for (int i = 0; i < m_lights.size(); ++i)
             {
@@ -188,7 +218,7 @@ class SandBoxScene extends Scene
         {
           PointLight light = new PointLight(20);
           light.setPosition(new PVector(mouseX, mouseY));
-          light.setColor(new Color(1, 1, 0));
+          light.setColor(getColorFromSliders());
           m_lights.add(light);
           for (int i = 0; i < m_lineSegments.size(); ++i)
           {
@@ -220,6 +250,11 @@ class SandBoxScene extends Scene
     text("Right mouse: create new light at mouse position", width / 2, height - 20);
     text("C: clear scene  R: toggle light render", width /2, height - 10);
   }
+  
+  private Color getColorFromSliders()
+  {
+    return new Color(m_colorSliders[0].getValue(), m_colorSliders[1].getValue(), m_colorSliders[2].getValue());
+  }
 
   public void handleInput()
   {
@@ -240,6 +275,8 @@ class SandBoxScene extends Scene
   private PVector m_startOfNextLine = null;
   private boolean m_pressingMouse = false;
   private boolean m_renderLights = true;
+  
+  private Slider[] m_colorSliders;
 }
 
 // ---------------------------------------------- End of SandBox Scene --------------------------------------------------
