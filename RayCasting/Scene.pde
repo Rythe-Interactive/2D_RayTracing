@@ -66,16 +66,6 @@ class HexagonScene extends Scene
     m_rightBottomLine.render();
     m_bottomLine.render();
 
-    fill(80);
-    stroke(80);
-    textSize(13);
-    text(frameRate, 30, 10);
-    text("Max bounces per ray: " + m_maxBounces, width-70, 10);
-    text("Ray Count: " + m_rayCount + "              ", width-75, 20);
-
-    text("W: add ray  D: remove ray", width /2, height - 20);
-    text("A: increase bounce count  S: decrease bounce count", width / 2, height - 10);
-
     fill(255);
     stroke(255);
     textSize(12);
@@ -161,12 +151,7 @@ class SandBoxScene extends Scene
 {
   public void init()
   {
-    m_rays = new ArrayList<Ray>();
-    for (int i = 0; i < 30; ++i)
-    {
-      PVector dir = PVector.fromAngle(PI*2/30*i);
-      m_rays.add(new Ray(vadd(new PVector(width / 2, height / 2), vscale(dir, 10)), dir, 2));
-    }
+    m_lights = new ArrayList<Light>();
     m_lineSegments = new ArrayList<LineSegment>();
   }
 
@@ -174,29 +159,43 @@ class SandBoxScene extends Scene
   {
     background(0);
 
-    if (mousePressed && (mouseButton == LEFT))
+    if (mousePressed)
     {
       if (!m_pressingMouse)
       {
-      m_pressingMouse = true;
-        if (m_startOfNextLine == null)
+        m_pressingMouse = true;
+        // left mouse
+        if (mouseButton == LEFT)
         {
-          m_startOfNextLine = new PVector(mouseX, mouseY);
-        } 
-        else
-        {
-          PVector end = new PVector(mouseX, mouseY);
-          LineSegment line = new LineSegment(m_startOfNextLine, end);
-          m_startOfNextLine = null;
-          for (int i = 0; i < m_rays.size(); ++i)
+          if (m_startOfNextLine == null)
           {
-            m_rays.get(i).addLineSegmentCollider(line);
+            m_startOfNextLine = new PVector(mouseX, mouseY);
+          } else
+          {
+            PVector end = new PVector(mouseX, mouseY);
+            LineSegment line = new LineSegment(m_startOfNextLine, end);
+            m_startOfNextLine = null;
+            for (int i = 0; i < m_lights.size(); ++i)
+            {
+              m_lights.get(i).addLineSegmentCollider(line);
+            }
+            m_lineSegments.add(line);
           }
-          m_lineSegments.add(line);
+        }
+        // End of left mouse
+        // Right mouse
+        else if (mouseButton == RIGHT)
+        {
+          PointLight light = new PointLight(20);
+          light.setPosition(new PVector(mouseX, mouseY));
+          m_lights.add(light);
+          for (int i = 0; i < m_lineSegments.size(); ++i)
+          {
+            light.addLineSegmentCollider(m_lineSegments.get(i));
+          }
         }
       }
-    }
-    else
+    } else
     {
       m_pressingMouse = false;
     }
@@ -205,28 +204,32 @@ class SandBoxScene extends Scene
     {
       m_lineSegments.get(i).render();
     }
-    for (int i = 0; i < m_rays.size(); ++i)
+    for (int i = 0; i < m_lights.size(); ++i)
     {
-      m_rays.get(i).update();
-      m_rays.get(i).render();
+      m_lights.get(i).update();
+      m_lights.get(i).render();
     }
-
-    fill(80);
-    stroke(80);
-    textSize(13);
-    text(frameRate, 30, 10);
+    
     fill(255);
     stroke(255);
     textSize(12);
     text(frameRate, 30, 10);
+    text("Left mouse: set start/set end of new line segment", width /2, height - 30);
+    text("Right mouse: create new light at mouse position", width / 2, height - 20);
+    text("Press C to clear", width /2, height - 10);
   }
 
   public void handleInput()
   {
+    if(key == 'c')
+    {
+      m_lineSegments.clear();
+      m_lights.clear();
+    }
   }
 
   private ArrayList<LineSegment> m_lineSegments;
-  private ArrayList<Ray> m_rays;
+  private ArrayList<Light> m_lights;
 
   private PVector m_startOfNextLine = null;
   private boolean m_pressingMouse = false;
