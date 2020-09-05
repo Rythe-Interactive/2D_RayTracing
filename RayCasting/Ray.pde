@@ -36,17 +36,22 @@ public class Ray
 
   public void render()
   {
+    render(1000);
+  }
+
+  public void render(int renderLength)
+  {
     // This function is also used as a reset for which bounces have been found
     // 
     for (int i = 0; i < m_bounces.size(); ++i)
     {
-      m_bounces.get(i).render();
+      m_bounces.get(i).render(renderLength);
     }
 
     stroke(m_color.get());
 
     if (m_hasEnd) line(m_start.x, m_start.y, m_end.x, m_end.y);
-    else line(m_start.x, m_start.y, m_start.x+m_direction.x*500, m_start.y+m_direction.y*500);
+    else line(m_start.x, m_start.y, m_start.x+m_direction.x*renderLength, m_start.y+m_direction.y*renderLength);
     m_hasEnd = false;
   }
 

@@ -188,6 +188,7 @@ class SandBoxScene extends Scene
         {
           PointLight light = new PointLight(20);
           light.setPosition(new PVector(mouseX, mouseY));
+          light.setColor(new Color(1, 1, 0));
           m_lights.add(light);
           for (int i = 0; i < m_lineSegments.size(); ++i)
           {
@@ -207,7 +208,8 @@ class SandBoxScene extends Scene
     for (int i = 0; i < m_lights.size(); ++i)
     {
       m_lights.get(i).update();
-      m_lights.get(i).render();
+      if(m_renderLights) m_lights.get(i).renderRays();
+      m_lights.get(i).renderPosition();
     }
     
     fill(255);
@@ -216,7 +218,7 @@ class SandBoxScene extends Scene
     text(frameRate, 30, 10);
     text("Left mouse: set start/set end of new line segment", width /2, height - 30);
     text("Right mouse: create new light at mouse position", width / 2, height - 20);
-    text("Press C to clear", width /2, height - 10);
+    text("C: clear scene  R: toggle light render", width /2, height - 10);
   }
 
   public void handleInput()
@@ -226,6 +228,10 @@ class SandBoxScene extends Scene
       m_lineSegments.clear();
       m_lights.clear();
     }
+    else if(key == 'r')
+    {
+      m_renderLights = !m_renderLights;
+    }
   }
 
   private ArrayList<LineSegment> m_lineSegments;
@@ -233,6 +239,7 @@ class SandBoxScene extends Scene
 
   private PVector m_startOfNextLine = null;
   private boolean m_pressingMouse = false;
+  private boolean m_renderLights = true;
 }
 
 // ---------------------------------------------- End of SandBox Scene --------------------------------------------------
