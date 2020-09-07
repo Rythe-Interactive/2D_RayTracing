@@ -118,6 +118,11 @@ public class LineSegment
     return inverse;
   }
   
+  public String toString()
+  {
+    return m_start + " to " + m_end;
+  }
+  
   private PVector m_start;
   private PVector m_end;
   private PVector m_normal;

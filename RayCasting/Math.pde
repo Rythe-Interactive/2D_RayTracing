@@ -44,3 +44,8 @@ float degToRad(float deg)
 {
   return deg / 180 * PI;
 }
+
+boolean vcompare(PVector vec0, PVector vec1)
+{
+  return (vec0.x == vec1.x && vec0.y == vec1.y);
+}

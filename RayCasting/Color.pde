@@ -112,6 +112,11 @@ class Color
     return new Color(r, g, b, a);
   }
   
+  public String toString()
+  {
+    return "[ " + r*255 + "; " + g*255 + "; " + b*255 + "; " + a*255 + " ]";
+  }
+  
   public float r;
   public float g;
   public float b;

@@ -287,30 +287,51 @@ class ImageScene extends Scene
 {
   public void init()
   {
-    m_image = new Image("square.png", new PVector(width / 2, height / 2));
-    m_light = new PointLight(20);
-    m_light.setPosition(new PVector(20, height/2));
-    m_light.setColor(new Color(1,1,0));
+    m_image = new Image("big_circle.png", new PVector(width / 2, height / 2));
     
     m_image.init();
     
-    LineSegment[] imageColliders = m_image.getColliders();
-    for(int i = 0; i < m_image.getColliderCount(); ++i)
-    {
-      m_light.addLineSegmentCollider(imageColliders[i]);
-    }
+    m_lights = new ArrayList<Light>();
   }
   
   public void update()
   {
-     background(255);
+     background(120, 0 ,0);
+     
+    if (mousePressed)
+    {
+     if (!m_pressingMouse)
+     {
+        m_pressingMouse = true;
+        // Right mouse
+        if (mouseButton == RIGHT)
+        {
+          PointLight light = new PointLight(20);
+          light.setPosition(new PVector(mouseX, mouseY));
+          light.setColor(new Color(1,1,0));
+          m_lights.add(light);
+          
+          LineSegment[] imageColliders = m_image.getColliders();
+          for(int i = 0; i < m_image.getColliderCount(); ++i)
+          {
+            light.addLineSegmentCollider(imageColliders[i]);
+          }
+        }
+      }
+    } else
+    {
+      m_pressingMouse = false;
+    }
      
      m_image.renderImage();
      m_image.renderColliders();
      
-     m_light.update();
-     m_light.renderPosition();
-     //m_light.renderRays();
+    for (int i = 0; i < m_lights.size(); ++i)
+    {
+      m_lights.get(i).update();
+      m_lights.get(i).renderRays();
+      m_lights.get(i).renderPosition();
+    }
   }
   
   public void handleInput()
@@ -318,7 +339,9 @@ class ImageScene extends Scene
   }
   
   private Image m_image;
-  private PointLight m_light;
+  private ArrayList<Light> m_lights;
+  
+  private boolean m_pressingMouse = false;
 }
 
 // ---------------------------------------------- End of Image Scene --------------------------------------------------
