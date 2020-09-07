@@ -89,12 +89,12 @@ class PointLight extends Light
     }
   }
   
-  public void setPosition(PVector position)
+  @ Override public void setPosition(PVector position)
   {
     m_position = position;
     for (int i = 0; i < m_rayCount; ++i)
     {
-      m_rays[i].set(vadd(new PVector(mouseX, mouseY), vscale(m_rays[i].dir(), 10)), m_rays[i].dir());
+      m_rays[i].set(vadd(position, vscale(m_rays[i].dir(), 10)), m_rays[i].dir());
     }
   }
 }

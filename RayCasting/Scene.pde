@@ -280,3 +280,45 @@ class SandBoxScene extends Scene
 }
 
 // ---------------------------------------------- End of SandBox Scene --------------------------------------------------
+
+// ---------------------------------------------- Start of Image Scene --------------------------------------------------
+
+class ImageScene extends Scene
+{
+  public void init()
+  {
+    m_image = new Image("square.png", new PVector(width / 2, height / 2));
+    m_light = new PointLight(20);
+    m_light.setPosition(new PVector(20, height/2));
+    m_light.setColor(new Color(1,1,0));
+    
+    m_image.init();
+    
+    LineSegment[] imageColliders = m_image.getColliders();
+    for(int i = 0; i < m_image.getColliderCount(); ++i)
+    {
+      m_light.addLineSegmentCollider(imageColliders[i]);
+    }
+  }
+  
+  public void update()
+  {
+     background(255);
+     
+     m_image.renderImage();
+     m_image.renderColliders();
+     
+     m_light.update();
+     m_light.renderPosition();
+     //m_light.renderRays();
+  }
+  
+  public void handleInput()
+  {
+  }
+  
+  private Image m_image;
+  private PointLight m_light;
+}
+
+// ---------------------------------------------- End of Image Scene --------------------------------------------------

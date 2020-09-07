@@ -24,6 +24,14 @@ class Color
     a = cl.a;
   }
   
+  public Color(color cl)
+  {
+    r = red(cl) / 255;
+    g = green(cl) / 255;
+    b = blue(cl) / 255;
+    a = alpha(cl) / 255;
+  }
+  
   public void set(float cr, float cg, float cb, float ca)
   {
     r = cr;
@@ -38,6 +46,20 @@ class Color
     g = cg;
     b = cb;
     a = 1;
+  }
+  
+  public void set(color cl)
+  {
+    r = red(cl) / 255;
+    g = green(cl) / 255;
+    b = blue(cl) / 255;
+    a = alpha(cl) / 255;
+  }
+  
+  public Color fromColor(color cl)
+  {
+    Color clr = new Color(cl);
+    return clr;
   }
   
   public color get()

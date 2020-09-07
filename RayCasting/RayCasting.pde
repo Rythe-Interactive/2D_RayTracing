@@ -3,7 +3,7 @@ Scene scene;
 void setup()
 {
   size(500, 500);
-  scene = new SandBoxScene();
+  scene = new ImageScene();
   scene.init();
   smooth(8);
   frameRate(1000);
