@@ -26,12 +26,14 @@ class Image
     // found top left
     
     ArrayList<PVector> linePoints = new ArrayList<PVector>();
+    ArrayList<Color> linePointColors = new ArrayList<Color>();
     linePoints.add(topLeft);
+    linePointColors.add(new Color(m_image.pixels[(int)(topLeft.x+topLeft.y*m_image.width)]));
     
-    getLinePointsTop(topLeft, linePoints);
-    getLinePointsRight(linePoints.get(linePoints.size()-1), linePoints);
-    getLinePointsBottom(linePoints.get(linePoints.size()-1), linePoints);
-    getLinePointsLeft(linePoints.get(linePoints.size()-1), linePoints);
+    getLinePointsTop(linePoints, linePointColors);
+    getLinePointsRight(linePoints, linePointColors);
+    getLinePointsBottom(linePoints, linePointColors);
+    getLinePointsLeft(linePoints, linePointColors);
     
     //for(int i = 0; i < topPoints.size(); ++i)
     //{
@@ -50,6 +52,7 @@ class Image
       {
         line = new LineSegment(vadd(linePoints.get(i), addToPixelPosisitions), vadd(linePoints.get(i+1), addToPixelPosisitions));
       }
+      line.setColor(linePointColors.get(i));
       lines.add(line);
     }
 
@@ -92,11 +95,13 @@ class Image
     return topLeft;
   }
   
-  private void getLinePointsTop(PVector start, ArrayList<PVector> linePoints)
+  private void getLinePointsTop(ArrayList<PVector> linePoints, ArrayList<Color> linePointColors)
   {
+    PVector start = linePoints.get(linePoints.size()-1);
     PVector lastPixelInSequence = null;
     PVector sequenceStep = null;
     PVector startPixelInSequence = null;
+    Color sequenceColor = null;
     //search to the right
     for(int x = (int)start.x; x < m_image.width; ++x)
     {
@@ -109,15 +114,17 @@ class Image
           foundPixel = true;
           PVector pixel = new PVector(x, y);
           if(vcompare(pixel, linePoints.get(0)) && startPixelInSequence != null) return;
+          Color pixelColor = new Color(m_image.pixels[(int)(pixel.x+pixel.y*m_image.width)]);
           if(startPixelInSequence == null)
           {
             println("pixel " + pixel + " start of sequence");
             startPixelInSequence = pixel;
             lastPixelInSequence = pixel;
+            sequenceColor = pixelColor;
             break;
           }
           PVector step = vsub(pixel, lastPixelInSequence);
-          if(sequenceStep == null || vcompare(step, sequenceStep))
+          if(sequenceStep == null || (vcompare(step, sequenceStep) && sequenceColor.compare(pixelColor)))
           {
             //same step as last step - no need for a new lineSegment
             println("pixel " + pixel + " continue of sequence");
@@ -126,7 +133,7 @@ class Image
             sequenceStep = step;
             break;
           }
-          else if(!vcompare(step, sequenceStep))
+          else if(!vcompare(step, sequenceStep) || !sequenceColor.compare(pixelColor))
           {
             // new pixel is next to last pixel
             println("pixel " + pixel + " exit of sequence");
@@ -135,6 +142,8 @@ class Image
             lastPixelInSequence = null;
             startPixelInSequence = pixel;
             sequenceStep = step;
+            linePointColors.add(pixelColor);
+            sequenceColor = pixelColor;
           }
           lastPixelInSequence = pixel;
           break;
@@ -150,16 +159,18 @@ class Image
   }
   
   
-  private void getLinePointsRight(PVector start, ArrayList<PVector> linePoints)
+  private void getLinePointsRight(ArrayList<PVector> linePoints, ArrayList<Color> linePointColors)
   {
+    PVector start = linePoints.get(linePoints.size()-1);
     PVector lastPixelInSequence = null;
     PVector sequenceStep = null;
     PVector startPixelInSequence = null;
+    Color sequenceColor = null;
     //search to the right
     for(int y = (int)start.y; y < m_image.height; ++y)
     {
       boolean foundPixel = false;
-      for(int x = m_image.height - 1; x >= 0; --x)
+      for(int x = m_image.width - 1; x >= 0; --x)
       {
         Color cl = new Color(m_image.pixels[x+y*m_image.width]);
         if(cl.a == 1)
@@ -167,15 +178,17 @@ class Image
           foundPixel = true;
           PVector pixel = new PVector(x, y);
           if(vcompare(pixel, linePoints.get(0)) && startPixelInSequence != null) return;
+          Color pixelColor = new Color(m_image.pixels[(int)(pixel.x+pixel.y*m_image.width)]);
           if(startPixelInSequence == null)
           {
             println("pixel " + pixel + " start of sequence");
             startPixelInSequence = pixel;
             lastPixelInSequence = pixel;
+            sequenceColor = pixelColor;
             break;
           }
           PVector step = vsub(pixel, lastPixelInSequence);
-          if(sequenceStep == null || vcompare(step, sequenceStep))
+          if(sequenceStep == null || (vcompare(step, sequenceStep) && sequenceColor.compare(pixelColor)))
           {
             //same step as last step - no need for a new lineSegment
             println("pixel " + pixel + " continue of sequence");
@@ -184,7 +197,7 @@ class Image
             sequenceStep = step;
             break;
           }
-          else if(!vcompare(step, sequenceStep))
+          else if(!vcompare(step, sequenceStep) || !sequenceColor.compare(pixelColor))
           {
             // new pixel is next to last pixel
             println("pixel " + pixel + " exit of sequence");
@@ -193,6 +206,8 @@ class Image
             lastPixelInSequence = null;
             startPixelInSequence = pixel;
             sequenceStep = step;
+            linePointColors.add(pixelColor);
+            sequenceColor = pixelColor;
           }
           lastPixelInSequence = pixel;
           break;
@@ -207,11 +222,13 @@ class Image
     }
   }
   
-  private void getLinePointsBottom(PVector start, ArrayList<PVector> linePoints)
+  private void getLinePointsBottom(ArrayList<PVector> linePoints, ArrayList<Color> linePointColors)
   {
+    PVector start = linePoints.get(linePoints.size()-1);
     PVector lastPixelInSequence = null;
     PVector sequenceStep = null;
     PVector startPixelInSequence = null;
+    Color sequenceColor = null;
     //search to the right
     for(int x = (int)start.x; x >= 0; --x)
     {
@@ -224,15 +241,17 @@ class Image
           foundPixel = true;
           PVector pixel = new PVector(x, y);
           if(vcompare(pixel, linePoints.get(0)) && startPixelInSequence != null) return;
+          Color pixelColor = new Color(m_image.pixels[(int)(pixel.x+pixel.y*m_image.width)]);
           if(startPixelInSequence == null)
           {
             println("pixel " + pixel + " start of sequence");
             startPixelInSequence = pixel;
             lastPixelInSequence = pixel;
+            sequenceColor = pixelColor;
             break;
           }
           PVector step = vsub(pixel, lastPixelInSequence);
-          if(sequenceStep == null || vcompare(step, sequenceStep))
+          if(sequenceStep == null || (vcompare(step, sequenceStep) && sequenceColor.compare(pixelColor)))
           {
             //same step as last step - no need for a new lineSegment
             println("pixel " + pixel + " continue of sequence");
@@ -241,7 +260,7 @@ class Image
             sequenceStep = step;
             break;
           }
-          else if(!vcompare(step, sequenceStep))
+          else if(!vcompare(step, sequenceStep) || !sequenceColor.compare(pixelColor))
           {
             // new pixel is next to last pixel
             println("pixel " + pixel + " exit of sequence");
@@ -250,6 +269,8 @@ class Image
             lastPixelInSequence = null;
             startPixelInSequence = pixel;
             sequenceStep = step;
+            linePointColors.add(pixelColor);
+            sequenceColor = pixelColor;
           }
           lastPixelInSequence = pixel;
           break;
@@ -264,11 +285,13 @@ class Image
     }
   }
   
-  private void getLinePointsLeft(PVector start, ArrayList<PVector> linePoints)
+  private void getLinePointsLeft(ArrayList<PVector> linePoints, ArrayList<Color> linePointColors)
   {
+    PVector start = linePoints.get(linePoints.size()-1);
     PVector lastPixelInSequence = null;
     PVector sequenceStep = null;
     PVector startPixelInSequence = null;
+    Color sequenceColor = null;
     //search to the right
     for(int y = (int)start.y; y >= 0; --y)
     {
@@ -281,15 +304,17 @@ class Image
           foundPixel = true;
           PVector pixel = new PVector(x, y);
           if(vcompare(pixel, linePoints.get(0)) && startPixelInSequence != null) return;
+          Color pixelColor = new Color(m_image.pixels[(int)(pixel.x+pixel.y*m_image.width)]);
           if(startPixelInSequence == null)
           {
             println("pixel " + pixel + " start of sequence");
             startPixelInSequence = pixel;
             lastPixelInSequence = pixel;
+            sequenceColor = pixelColor;
             break;
           }
           PVector step = vsub(pixel, lastPixelInSequence);
-          if(sequenceStep == null || vcompare(step, sequenceStep))
+          if(sequenceStep == null || (vcompare(step, sequenceStep) && sequenceColor.compare(pixelColor)))
           {
             //same step as last step - no need for a new lineSegment
             println("pixel " + pixel + " continue of sequence");
@@ -298,7 +323,7 @@ class Image
             sequenceStep = step;
             break;
           }
-          else if(!vcompare(step, sequenceStep))
+          else if(!vcompare(step, sequenceStep) || !sequenceColor.compare(pixelColor))
           {
             // new pixel is next to last pixel
             println("pixel " + pixel + " exit of sequence");
@@ -307,6 +332,8 @@ class Image
             lastPixelInSequence = null;
             startPixelInSequence = pixel;
             sequenceStep = step;
+            linePointColors.add(pixelColor);
+            sequenceColor = pixelColor;
           }
           lastPixelInSequence = pixel;
           break;

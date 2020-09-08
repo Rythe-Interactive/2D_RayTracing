@@ -43,6 +43,14 @@ abstract public class Light
     }
   }
   
+  public void renderRayBounces()
+  {
+    for(int i = 0; i < m_rayCount; ++i)
+    {
+      m_rays[i].renderBounces(1000);
+    }
+  }
+  
   // Renders only where the light is in the shape of a light
   // Does not render the rays
   public void renderPosition()

@@ -287,7 +287,7 @@ class ImageScene extends Scene
 {
   public void init()
   {
-    m_image = new Image("big_circle.png", new PVector(width / 2, height / 2));
+    m_image = new Image("big_colored_circle.png", new PVector(width/2, height/2));
     
     m_image.init();
     
@@ -296,7 +296,7 @@ class ImageScene extends Scene
   
   public void update()
   {
-     background(120, 0 ,0);
+     background(0, 0 ,0);
      
     if (mousePressed)
     {
@@ -308,7 +308,7 @@ class ImageScene extends Scene
         {
           PointLight light = new PointLight(20);
           light.setPosition(new PVector(mouseX, mouseY));
-          light.setColor(new Color(1,1,0));
+          light.setColor(new Color(1,1,1));
           m_lights.add(light);
           
           LineSegment[] imageColliders = m_image.getColliders();
@@ -324,12 +324,13 @@ class ImageScene extends Scene
     }
      
      m_image.renderImage();
-     m_image.renderColliders();
+     //m_image.renderColliders();
      
     for (int i = 0; i < m_lights.size(); ++i)
     {
       m_lights.get(i).update();
-      m_lights.get(i).renderRays();
+      //m_lights.get(i).renderRays();
+      m_lights.get(i).renderRayBounces();
       m_lights.get(i).renderPosition();
     }
   }

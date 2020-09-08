@@ -107,6 +107,11 @@ class Color
     return this;
   }
   
+  public boolean compare(Color cl)
+  {
+    return (r == cl.r && g == cl.g && b == cl.b && a == cl.a);
+  }
+  
   public Color clone()
   {
     return new Color(r, g, b, a);

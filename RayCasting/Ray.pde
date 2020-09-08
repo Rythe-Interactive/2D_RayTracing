@@ -39,6 +39,16 @@ public class Ray
     render(1000);
   }
 
+  public void renderBounces(int renderLength)
+  {
+    // This function is also used as a reset for which bounces have been found
+    // 
+    for (int i = 0; i < m_bounces.size(); ++i)
+    {
+      m_bounces.get(i).render(renderLength);
+    }
+  }
+
   public void render(int renderLength)
   {
     // This function is also used as a reset for which bounces have been found
