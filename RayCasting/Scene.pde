@@ -287,7 +287,7 @@ class ImageScene extends Scene
 {
   public void init()
   {
-    m_image = new Image("big_colored_circle.png", new PVector(width/2, height/2));
+    m_image = new Image("images/big_colored_circle.png", new PVector(width/2, height/2));
     
     m_image.init();
     
@@ -322,10 +322,22 @@ class ImageScene extends Scene
     {
       m_pressingMouse = false;
     }
+    
+    if(m_lights.size() >= 1)
+    {
+      ArrayList<RayHit> rayHits = m_lights.get(0).getLightHits();
+      if(rayHits.size() >= 1)
+      {
+        rayTracing.set("rayHitPosition", rayHits.get(0).hit.x, rayHits.get(0).hit.y);
+        rayTracing.set("rayHitColor", rayHits.get(0).hitColor.r, rayHits.get(0).hitColor.g, rayHits.get(0).hitColor.b, rayHits.get(0).hitColor.a);
+      }
+    }
      
+     shader(rayTracing);
      m_image.renderImage();
      //m_image.renderColliders();
      
+    shader(colorShader);
     for (int i = 0; i < m_lights.size(); ++i)
     {
       m_lights.get(i).update();
@@ -333,11 +345,19 @@ class ImageScene extends Scene
       m_lights.get(i).renderRayBounces();
       m_lights.get(i).renderPosition();
     }
+    
+    shader(texShader);
+    fill(255, 0, 0);
+    text(frameRate, 30, 5);
   }
   
   public void handleInput()
   {
   }
+  
+  private PShader rayTracing = loadShader("shaders/rayTracing.fs", "shaders/rayTracing.vs");
+  private PShader colorShader = loadShader("shaders/color.fs", "shaders/color.vs");
+  private PShader texShader = loadShader("shaders/texture.fs", "shaders/texture.vs");
   
   private Image m_image;
   private ArrayList<Light> m_lights;

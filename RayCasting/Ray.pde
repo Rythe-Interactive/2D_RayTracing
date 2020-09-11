@@ -8,7 +8,7 @@ public class Ray
     m_normal = new PVector(-dir.y, dir.x);
     m_normal.normalize();
 
-    m_bounces = new ArrayList<Ray>();
+    m_hit = null;
     m_lineSegments = new ArrayList<LineSegment>();
     m_maxBounces = maxBounces;
 
@@ -33,6 +33,11 @@ public class Ray
   {
     m_color = cl;
   }
+  
+  public Color getColor()
+  {
+    return m_color;
+  }
 
   public void render()
   {
@@ -41,22 +46,20 @@ public class Ray
 
   public void renderBounces(int renderLength)
   {
-    // This function is also used as a reset for which bounces have been found
-    // 
-    for (int i = 0; i < m_bounces.size(); ++i)
+    if(m_hit != null)
     {
-      m_bounces.get(i).render(renderLength);
+      m_hit.reflect.render(renderLength);
     }
+  }
+  
+  public RayHit getLastHit()
+  {
+    return m_lastHit;
   }
 
   public void render(int renderLength)
   {
-    // This function is also used as a reset for which bounces have been found
-    // 
-    for (int i = 0; i < m_bounces.size(); ++i)
-    {
-      m_bounces.get(i).render(renderLength);
-    }
+    if(m_hit != null) m_hit.reflect.render(renderLength);
 
     stroke(m_color.get());
 
@@ -99,7 +102,7 @@ public class Ray
 
   public void update()
   {
-    m_bounces.clear();
+    m_hit = null;
     m_hasEnd = false;
 
     LineSegment closest = null;
@@ -116,18 +119,26 @@ public class Ray
       closestPoi = poi;
     }
     
+    if(closest == null)
+    {
+      m_lastHit = null;
+      return;
+    }
+    
     if(m_hasEnd)
     {
       Color mixColor = m_color.clone().mult(closest.getColor());
       fill(mixColor.get());
       noStroke();
-      ellipse(closestPoi.x, closestPoi.y, 10, 10);
+      //ellipse(closestPoi.x, closestPoi.y, 10, 10);
       if (m_maxBounces > 0)
       {
         PVector bounceDir = vreflect( m_direction, closest.getNormal() );
         Ray bounce = new Ray( vadd(closestPoi, vscale(bounceDir, 5)), bounceDir, m_maxBounces-1);
         bounce.setColor(mixColor);
-        m_bounces.add(bounce);
+        RayHit hit = new RayHit(bounce, closestPoi, closest.getNormal(), closest.getColor());
+        m_hit = hit;
+        m_lastHit = m_hit;
 
         for (int i = 0; i < m_lineSegments.size(); ++i)
         {
@@ -161,6 +172,7 @@ public class Ray
   private int m_maxBounces;
   private Color m_color;
 
-  private ArrayList<Ray> m_bounces;
+  private RayHit m_hit;
+  private RayHit m_lastHit;
   private ArrayList<LineSegment> m_lineSegments;
 }

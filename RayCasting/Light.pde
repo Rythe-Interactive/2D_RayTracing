@@ -51,11 +51,24 @@ abstract public class Light
     }
   }
   
+  public ArrayList<RayHit> getLightHits()
+  {
+    ArrayList<RayHit> hits = new ArrayList<RayHit>();
+    
+    for(int i = 0; i < m_rayCount; ++i)
+    {
+      RayHit hit = m_rays[i].getLastHit();
+      if(hit != null) hits.add(hit);
+    }
+    
+    return hits;
+  }
+  
   // Renders only where the light is in the shape of a light
   // Does not render the rays
   public void renderPosition()
   {
-    fill(120);
+    fill(m_color.get());
     arc(m_position.x, m_position.y, 10, 40, degToRad(0), degToRad(180));
     fill(m_color.get());
     ellipse(m_position.x, m_position.y, 20, 20);
