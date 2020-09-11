@@ -119,7 +119,7 @@ class Color
   
   public String toString()
   {
-    return "[ " + r*255 + "; " + g*255 + "; " + b*255 + "; " + a*255 + " ]";
+    return "[ " + r + "; " + g + "; " + b + "; " + a + " ]";
   }
   
   public float r;

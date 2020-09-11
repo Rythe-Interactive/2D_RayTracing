@@ -328,10 +328,27 @@ class ImageScene extends Scene
       ArrayList<RayHit> rayHits = m_lights.get(0).getLightHits();
       if(rayHits.size() >= 1)
       {
-        rayTracing.set("rayHitPosition", rayHits.get(0).hit.x, rayHits.get(0).hit.y);
-        rayTracing.set("rayHitColor", rayHits.get(0).hitColor.r, rayHits.get(0).hitColor.g, rayHits.get(0).hitColor.b, rayHits.get(0).hitColor.a);
+        rayTracing.set("rayHitPosition[0]", rayHits.get(0).hit.x, rayHits.get(0).hit.y);
+        rayTracing.set("rayHitColor[0]", rayHits.get(0).hitColor.r, rayHits.get(0).hitColor.g, rayHits.get(0).hitColor.b, rayHits.get(0).hitColor.a);
       }
     }
+    
+    int maxRaysToShader = 100;
+    int raysToShader = 0;
+    for(int i = 0; i < m_lights.size(); ++i)
+    {
+      ArrayList<RayHit> rayHits = m_lights.get(i).getLightHits();
+      for(int j = 0; j < rayHits.size(); ++j)
+      {
+        rayTracing.set("rayHitPosition[" + raysToShader + "]", rayHits.get(j).hit.x, rayHits.get(j).hit.y);
+        rayTracing.set("rayHitColor[" + raysToShader + "]", rayHits.get(j).hitColor.r, rayHits.get(j).hitColor.g, rayHits.get(j).hitColor.b, rayHits.get(j).hitColor.a);
+        ++raysToShader;
+        if(raysToShader == maxRaysToShader) break;
+      }
+      if(raysToShader == maxRaysToShader) break;
+    }
+    println("sending " + raysToShader + " Rays to shader");
+    rayTracing.set("rayCount", raysToShader);
      
      shader(rayTracing);
      m_image.renderImage();

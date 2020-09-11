@@ -136,7 +136,7 @@ public class Ray
         PVector bounceDir = vreflect( m_direction, closest.getNormal() );
         Ray bounce = new Ray( vadd(closestPoi, vscale(bounceDir, 5)), bounceDir, m_maxBounces-1);
         bounce.setColor(mixColor);
-        RayHit hit = new RayHit(bounce, closestPoi, closest.getNormal(), closest.getColor());
+        RayHit hit = new RayHit(bounce, closestPoi, closest.getNormal(), m_color);
         m_hit = hit;
         m_lastHit = m_hit;
 
