@@ -287,9 +287,14 @@ class ImageScene extends Scene
 {
   public void init()
   {
-    m_image = new Image("images/big_colored_circle.png", new PVector(width/2, height/2));
+    m_image = new Image[2];
+    m_image[0] = new Image("images/big_colored_circle.png", new PVector(width, height));
+    m_image[1] = new Image("images/big_colored_circle.png", new PVector(width, 0));
     
-    m_image.init();
+    m_image[0].init();
+    m_image[1].init();
+    
+    m_seperateLine = new LineSegment(new PVector(0, height/2), new PVector(width / 4 * 3, height / 2));
     
     m_lights = new ArrayList<Light>();
   }
@@ -311,11 +316,17 @@ class ImageScene extends Scene
           light.setColor(new Color(1,1,1));
           m_lights.add(light);
           
-          LineSegment[] imageColliders = m_image.getColliders();
-          for(int i = 0; i < m_image.getColliderCount(); ++i)
+          LineSegment[] imageColliders = m_image[0].getColliders();
+          for(int i = 0; i < m_image[0].getColliderCount(); ++i)
           {
             light.addLineSegmentCollider(imageColliders[i]);
           }
+          imageColliders = m_image[1].getColliders();
+          for(int i = 0; i < m_image[1].getColliderCount(); ++i)
+          {
+            light.addLineSegmentCollider(imageColliders[i]);
+          }
+          light.addLineSegmentCollider(m_seperateLine);
         }
       }
     } else
@@ -351,10 +362,12 @@ class ImageScene extends Scene
     rayTracing.set("rayCount", raysToShader);
      
      shader(rayTracing);
-     m_image.renderImage();
+     m_image[0].renderImage();
+     m_image[1].renderImage();
      //m_image.renderColliders();
      
     shader(colorShader);
+    m_seperateLine.render();
     for (int i = 0; i < m_lights.size(); ++i)
     {
       m_lights.get(i).update();
@@ -376,7 +389,8 @@ class ImageScene extends Scene
   private PShader colorShader = loadShader("shaders/color.fs", "shaders/color.vs");
   private PShader texShader = loadShader("shaders/texture.fs", "shaders/texture.vs");
   
-  private Image m_image;
+  private Image[] m_image;
+  private LineSegment m_seperateLine;
   private ArrayList<Light> m_lights;
   
   private boolean m_pressingMouse = false;

@@ -52,9 +52,20 @@ public class Ray
     }
   }
   
-  public RayHit getLastHit()
+  public ArrayList<RayHit> getLastHit()
   {
-    return m_lastHit;
+    if(m_lastHit == null) return null;
+    ArrayList<RayHit> hits = new ArrayList<RayHit>();
+    hits.add(m_lastHit);
+    ArrayList<RayHit> reflectHits = m_lastHit.reflect.getLastHit();
+    if(reflectHits != null)
+    {
+      for(int i = 0; i < reflectHits.size(); ++i)
+      {
+        hits.add(reflectHits.get(i));
+      }
+    }
+    return hits;
   }
 
   public void render(int renderLength)

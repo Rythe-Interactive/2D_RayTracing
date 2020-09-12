@@ -57,8 +57,14 @@ abstract public class Light
     
     for(int i = 0; i < m_rayCount; ++i)
     {
-      RayHit hit = m_rays[i].getLastHit();
-      if(hit != null) hits.add(hit);
+      ArrayList<RayHit> rayHits = m_rays[i].getLastHit();
+      if(rayHits != null)
+      {
+        for(int j = 0; j < rayHits.size(); ++j)
+        {
+          hits.add(rayHits.get(j));
+        }
+      }
     }
     
     return hits;
