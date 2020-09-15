@@ -294,7 +294,7 @@ class ImageScene extends Scene
     m_image[0].init();
     m_image[1].init();
     
-    m_seperateLine = new LineSegment(new PVector(0, height/2), new PVector(width / 4 * 3, height / 2));
+    m_seperateLine = new LineSegment(new PVector(0, height/2), new PVector(width , height / 2));
     
     m_lights = new ArrayList<Light>();
   }
