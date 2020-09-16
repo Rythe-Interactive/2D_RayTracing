@@ -4,5 +4,5 @@ using UnityEngine;
 
 public abstract class RayCollider : MonoBehaviour
 {
-    public abstract bool Collide(LightRay ray);
+    public abstract bool collide(Ray ray, out RayHit hit);
 }

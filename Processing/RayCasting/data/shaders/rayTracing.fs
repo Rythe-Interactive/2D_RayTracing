@@ -9,8 +9,8 @@ varying vec4 vertColor;
 varying vec4 vertTexCoord;
 in vec3 fragPosition;
 
-uniform vec2 rayHitPosition[100];
-uniform vec4 rayHitColor[100];
+uniform vec2 rayHitPosition[500];
+uniform vec4 rayHitColor[500];
 uniform int rayCount;
 
 void main() 

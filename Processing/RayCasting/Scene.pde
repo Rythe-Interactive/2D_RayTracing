@@ -311,7 +311,7 @@ class ImageScene extends Scene
         // Right mouse
         if (mouseButton == RIGHT)
         {
-          PointLight light = new PointLight(20);
+          PointLight light = new PointLight(360);
           light.setPosition(new PVector(mouseX, mouseY));
           light.setColor(new Color(1,1,1));
           m_lights.add(light);
@@ -344,7 +344,7 @@ class ImageScene extends Scene
       }
     }
     
-    int maxRaysToShader = 100;
+    int maxRaysToShader = 500;
     int raysToShader = 0;
     for(int i = 0; i < m_lights.size(); ++i)
     {
