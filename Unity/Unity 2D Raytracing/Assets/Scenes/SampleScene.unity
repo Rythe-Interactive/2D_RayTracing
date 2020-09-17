@@ -181,7 +181,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &433731298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,6 +196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_color: {r: 1, g: 1, b: 1, a: 1}
   m_maxDepth: 3
+  m_origin: {fileID: 0}
 --- !u!212 &433731299
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -392,7 +393,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &618494985
 MonoBehaviour:
   m_ObjectHideFlags: 0
