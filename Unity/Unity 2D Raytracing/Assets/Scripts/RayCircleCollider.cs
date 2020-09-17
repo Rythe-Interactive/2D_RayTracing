@@ -30,6 +30,12 @@ public class RayCircleCollider : RayCollider
         float closestRayPointToPoi = Mathf.Sqrt(Mathf.Pow(m_radius, 2) - Mathf.Pow(centerToRay, 2));
 
         Vector2 poi = closestRayPoint - (closestRayPointToPoi * ray.direction.normalized);
+        Vector2 rayToPoi = poi - ray.position;
+        if (rayToPoi.normalized != ray.direction)
+        {
+            hit = null;
+            return false;
+        }
         Vector2 normal = (poi - center).normalized;
         hit = new RayHit(ray, poi, normal, this);
         return true;
