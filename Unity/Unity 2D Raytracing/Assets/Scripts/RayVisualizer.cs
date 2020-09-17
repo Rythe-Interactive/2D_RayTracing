@@ -9,7 +9,7 @@ public class RayVisualizer : MonoBehaviour
     [SerializeField] int m_rayCount;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         m_rays = new List<Ray>();
         if (instance == null) instance = this;

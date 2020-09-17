@@ -82,8 +82,7 @@ public static class RayTracer
         {
             if(m_colliders[i].collide(ray, out RayHit newHit))
             {
-                //Debug.Log("HITS!");
-                if(!hit.nullHit || (newHit.point-ray.position).magnitude < dist)
+                if(hit.nullHit || (newHit.point-ray.position).magnitude < dist)
                 {
                     dist = (newHit.point - ray.position).magnitude;
                     hit = newHit;

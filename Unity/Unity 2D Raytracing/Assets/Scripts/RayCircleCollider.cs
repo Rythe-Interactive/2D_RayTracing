@@ -19,9 +19,9 @@ public class RayCircleCollider : RayCollider
 
     public override bool collide(Ray ray, out RayHit hit)
     {
-        if (ray.origin == this)
+        if (ray == null || ray.origin == this)
         {
-            hit = new RayHit(ray);
+            hit = new RayHit(null);
             return false;
         }
         Vector2 pos = center;
