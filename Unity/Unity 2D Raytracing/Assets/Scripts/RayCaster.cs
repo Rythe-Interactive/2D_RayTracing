@@ -25,23 +25,32 @@ public static class RayCaster
         for (int i = 0; i < GameObject.FindGameObjectsWithTag("Ray").Length; ++i)
         {
             Ray ray = GameObject.FindGameObjectsWithTag("Ray")[i].GetComponent<Ray>();
-            List<RayHit> rays = collide(ray);
-            if (m_rayHits == null) m_rayHits = new List<RayHit>();
+            RayHit hit = collide(ray);
+            if (hit != null)
+            {
+                if(m_rayHits == null) m_rayHits = new List<RayHit>();
+                m_rayHits.Add(hit);
+            }
         }
     }
 
-    public static List<RayHit> collide(Ray ray)
+    public static RayHit collide(Ray ray)
     {
         if (m_colliders == null) return null;
-        List<RayHit> hits = new List<RayHit>();
+        RayHit hit = null;
+        float dist = 0;
         for (int i = 0; i < m_colliders.Count; ++i)
         {
-            if(m_colliders[i].collide(ray, out RayHit hit))
+            if(m_colliders[i].collide(ray, out RayHit newHit))
             {
-                hits.Add(hit);
-                ray.setBounceFromHit(hit);
+                if(hit == null || (newHit.point-ray.position).magnitude < dist)
+                {
+                    dist = (newHit.point - ray.position).magnitude;
+                    hit = newHit;
+                }
             }
         }
-        return hits;
+        ray.setBounceFromHit(hit);
+        return hit;
     }
 }

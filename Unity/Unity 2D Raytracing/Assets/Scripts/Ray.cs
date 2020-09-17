@@ -37,12 +37,19 @@ public class Ray : MonoBehaviour
 
     public Ray setBounceFromHit(RayHit hit)
     {
-        if (hit.Equals(m_bounceInfo)) return m_bounce;
+        if (hit == null)
+        {
+            if(m_bounce != null) Destroy(m_bounce.gameObject);
+            m_bounceInfo = null;
+            return null;
+        }
+        else if (hit.Equals(m_bounceInfo)) return m_bounce;
         else if(m_bounce != null) Destroy(m_bounce.gameObject);
         GameObject reflectRayGo = new GameObject();
         Ray reflect = reflectRayGo.AddComponent<Ray>();
-        reflectRayGo.transform.position = hit.point;
+        reflectRayGo.transform.position = hit.point + hit.normal.normalized*0.1f;
         reflectRayGo.transform.rotation = Quaternion.AngleAxis(Mathf.Rad2Deg * Mathf.Atan2(hit.normal.y, hit.normal.x), new Vector3(0, 0, 1));
+        reflectRayGo.tag = "Ray";
         m_bounce = reflect;
         m_bounceInfo = hit;
         return reflect;
@@ -51,6 +58,12 @@ public class Ray : MonoBehaviour
     public void Update()
     {
         Debug.DrawRay(position, direction, Color.red);
+    }
+
+    public void OnDestroy()
+    {
+        if (m_bounce != null) Destroy(m_bounce.gameObject);
+        m_bounceInfo = null;
     }
 }
 
