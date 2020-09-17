@@ -8,15 +8,21 @@ public class RayCircleCollider : RayCollider
     [SerializeField] private float m_radius;
     [SerializeField] private readonly Vector2 m_offset;
     private Sprite m_sprite;
+    private List<Ray> m_rays;
 
     public void Start()
     {
-        RayCaster.register(this);
+        RayTracer.register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
     }
 
     public override bool collide(Ray ray, out RayHit hit)
     {
+        if (ray.origin == this)
+        {
+            hit = null;
+            return false;
+        }
         Vector2 pos = center;
         Vector2 dist = pos - ray.position; // Distance between ray start and circle center
 
@@ -44,6 +50,11 @@ public class RayCircleCollider : RayCollider
         return true;
     }
 
+    public override bool pointOnSurface(Vector2 point)
+    {
+        return (point - center).magnitude <= m_radius;
+    }
+
     private Vector2 textureSpaceUV(Vector2 worldPos)
     {
         Texture2D tex = m_sprite.texture;
@@ -66,6 +77,13 @@ public class RayCircleCollider : RayCollider
         Vector2 texSpaceCoord = texSpacePivot + localPos;
 
         return texSpaceCoord;
+    }
+
+    public override Ray addRay(Vector2 position)
+    {
+        Vector2 direction = (position - center).normalized;
+        Ray ray = Ray.create(position, direction, this);
+        return ray;
     }
 
     public Vector2 center

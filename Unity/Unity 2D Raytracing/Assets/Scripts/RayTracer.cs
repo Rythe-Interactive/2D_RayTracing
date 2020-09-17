@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class RayCaster
+public static class RayTracer
 {
     private static List<RayCollider> m_colliders;
     private static List<RayHit> m_rayHits;
@@ -22,6 +22,30 @@ public static class RayCaster
     public static void render()
     {
         m_rayHits?.Clear();
+
+        Camera cam = Camera.main;
+        //amount of world units
+        Vector2 worldUnits = new Vector2(
+            cam.orthographicSize*2*Screen.width/Screen.height,
+            cam.orthographicSize * 2);
+
+        for(int y = 0; y < cam.pixelHeight; ++y)
+        {
+            for(int x = 0; x < cam.pixelWidth; ++x)
+            {
+                for(int i = 0; i < m_colliders.Count; ++i)
+                {
+                    Vector2 worldPos = cam.ScreenToWorldPoint(new Vector2(x, y));
+                    if (m_colliders[i].pointOnSurface(worldPos))
+                    {
+                        m_colliders[i].addRay(worldPos);
+                    }
+                }
+            }
+        }
+
+        Debug.Break();
+
         for (int i = 0; i < GameObject.FindGameObjectsWithTag("Ray").Length; ++i)
         {
             Ray ray = GameObject.FindGameObjectsWithTag("Ray")[i].GetComponent<Ray>();
@@ -50,7 +74,7 @@ public static class RayCaster
                 }
             }
         }
-        ray.setBounceFromHit(hit);
+        ray.reflect(hit);
         return hit;
     }
 }

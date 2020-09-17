@@ -13,6 +13,6 @@ public class RayCasterHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RayCaster.render();
+        RayTracer.render();
     }
 }
