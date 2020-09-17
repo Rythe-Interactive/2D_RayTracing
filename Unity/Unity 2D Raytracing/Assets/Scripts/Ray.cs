@@ -3,25 +3,42 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class Ray : MonoBehaviour
+public class Ray
 {
-    private Ray m_bounce = null;
-    private RayHit m_bounceInfo = null;
-    [SerializeField] private Color m_color = new Color(1,1,1);
-    [SerializeField] private int m_maxDepth = 3;
-    [SerializeField] private RayCollider m_origin = null;
+    private Ray m_bounce;
+    private RayHit m_bounceInfo;
+    private Vector2 m_position;
+    private Vector2 m_direction;
+    private Color m_color;
+    private int m_maxDepth;
+    private RayCollider m_origin;
 
-    public void init(Color color, int maxDepth)
+    public Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = 1)
     {
+        m_position = position;
+        m_direction = direction;
         m_color = color;
         m_maxDepth = maxDepth;
+        m_origin = origin;
+
+        m_bounce = null;
+        m_bounceInfo = new RayHit(this);
+        RayVisualizer.instance.register(this);
     }
+
+    public Ray(Vector2 position, Vector2 direction, Color color, int maxDepth = 1) : 
+        this(position, direction, null, color, maxDepth) { }
+
+    public Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = 1) :
+        this(position, direction, origin, new Color(1, 1, 1), maxDepth) { }
+
+    #region getters
 
     public Vector2 position
     {
         get
         {
-            return new Vector2(this.transform.position.x, this.transform.position.y);
+            return m_position;
         }
     }
 
@@ -49,9 +66,7 @@ public class Ray : MonoBehaviour
     {
         get
         {
-            float angle = this.transform.rotation.eulerAngles.z;
-            Vector2 dir = new Vector2(Mathf.Cos(Mathf.Deg2Rad*angle), Mathf.Sin(Mathf.Deg2Rad * angle)).normalized;
-            return dir;
+            return m_direction;
         }
     }
 
@@ -64,66 +79,40 @@ public class Ray : MonoBehaviour
         }
     }
 
+    #endregion
+
     public Ray reflect(RayHit hit)
     {
-        if (hit == null)
+        if (hit.nullHit)
         {
-            if (m_bounce != null) Destroy(m_bounce.gameObject);
-            m_bounceInfo = null;
+            m_bounce = null;
+            m_bounceInfo = new RayHit(this);
             return null;
         }
         else if (hit.Equals(m_bounceInfo)) return m_bounce;
         else if (m_maxDepth == 0) return null;
-        else if (m_bounce != null) Destroy(m_bounce.gameObject);
-        GameObject reflectRayGo = new GameObject();
-        Ray reflect = reflectRayGo.AddComponent<Ray>();
-        reflect.init(m_color * hit.color, m_maxDepth - 1);
-        reflectRayGo.transform.position = hit.point + hit.normal.normalized*0.1f;
-        reflectRayGo.transform.rotation = Quaternion.AngleAxis(Mathf.Rad2Deg * Mathf.Atan2(hit.normal.y, hit.normal.x), new Vector3(0, 0, 1));
-        reflectRayGo.tag = "Ray";
+        m_bounce = null;
+        Vector2 reflectDir = Vector2.Reflect(m_direction, hit.normal).normalized;
+        Ray reflect = new Ray(hit.point, reflectDir, m_color * hit.color, m_maxDepth-1);
         m_bounce = reflect;
         m_bounceInfo = hit;
         return reflect;
     }
 
-    public static Ray create(Vector2 start, Vector2 direction, RayCollider origin, Color color, int maxDepth = 3)
+    public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
     {
-        GameObject rayGo = new GameObject();
-        Ray ray = rayGo.AddComponent<Ray>();
-        ray.init(color, maxDepth);
-        rayGo.transform.position = start;
-        rayGo.transform.rotation = Quaternion.AngleAxis(Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x), new Vector3(0, 0, 1));
-        rayGo.tag = "Ray";
-        ray.m_origin = origin;
-        return ray;
+        reUse(x, y, dirX, dirY, null, r, g, b, a, maxDepth);
     }
 
-    public static Ray create(Vector2 start, Vector2 direction, RayCollider origin, int maxDepth = 3)
+    public void reUse(float x, float y, float dirX, float dirY, RayCollider origin, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
     {
-        return Ray.create(start, direction, origin, new Color(1, 1, 1), maxDepth);
-    }
+        m_position.Set(x, y);
+        m_direction.Set(dirX, dirY);
+        m_color = color;
+        m_maxDepth = maxDepth;
+        m_origin = origin;
 
-    public void Update()
-    {
-        Debug.DrawRay(position, direction, m_color);
-    }
-
-    public void OnDestroy()
-    {
-        if (m_bounce != null) Destroy(m_bounce.gameObject);
-        m_bounceInfo = null;
-    }
-}
-
-[CustomEditor(typeof(Ray))]
-public class RayEditor : Editor
-{
-    private Ray m_ray;
-
-    public void OnSceneGUI()
-    {
-        m_ray = this.target as Ray;
-        Handles.color = Color.red;
-        Handles.DrawLine(m_ray.position, m_ray.position + m_ray.direction);
+        m_bounce = null;
+        m_bounceInfo = new RayHit(this); ;
     }
 }
