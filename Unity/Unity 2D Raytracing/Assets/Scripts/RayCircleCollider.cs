@@ -9,6 +9,7 @@ public class RayCircleCollider : RayCollider
     [SerializeField] private readonly Vector2 m_offset;
     private Sprite m_sprite;
     private List<Ray> m_rays;
+    [SerializeField] private bool m_renderable = true;
 
     public void Start()
     {
@@ -20,7 +21,7 @@ public class RayCircleCollider : RayCollider
     {
         if (ray.origin == this)
         {
-            hit = null;
+            hit = new RayHit(ray);
             return false;
         }
         Vector2 pos = center;
@@ -30,7 +31,7 @@ public class RayCircleCollider : RayCollider
 
         if (Mathf.Abs(centerToRay) > m_radius)
         {
-            hit = null;
+            hit = new RayHit(ray);
             return false;
         }
 
@@ -41,7 +42,7 @@ public class RayCircleCollider : RayCollider
         Vector2 rayToPoi = poi - ray.position;
         if (rayToPoi.normalized != ray.direction)
         {
-            hit = null;
+            hit = new RayHit(ray);
             return false;
         }
         Vector2 normal = (poi - center).normalized;
@@ -52,7 +53,7 @@ public class RayCircleCollider : RayCollider
 
     public override bool pointOnSurface(Vector2 point)
     {
-        return (point - center).magnitude <= m_radius;
+        return (point - center).magnitude <= m_radius && m_renderable;
     }
 
     private Vector2 textureSpaceUV(Vector2 worldPos)
@@ -79,11 +80,10 @@ public class RayCircleCollider : RayCollider
         return texSpaceCoord;
     }
 
-    public override Ray addRay(Vector2 position)
+    public override void setRay(Ray ray, float x, float y)
     {
-        Vector2 direction = (position - center).normalized;
-        Ray ray = Ray.create(position, direction, this);
-        return ray;
+        Vector2 direction = (new Vector2(x, y) - center).normalized;
+        ray.reUse(x, y, direction.x, direction.y, this);
     }
 
     public Vector2 center

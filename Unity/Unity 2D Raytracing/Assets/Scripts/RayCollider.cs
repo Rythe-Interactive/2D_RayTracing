@@ -8,5 +8,5 @@ public abstract class RayCollider : MonoBehaviour
     public abstract bool pointOnSurface(Vector2 point);
 
     public bool pointOnSurface(float x, float y) { return pointOnSurface(new Vector2(x, y)); }
-    public abstract Ray addRay(Vector2 position);
+    public abstract void setRay(Ray ray, float x, float y);
 }
