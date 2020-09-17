@@ -7,10 +7,12 @@ public class RayCircleCollider : RayCollider
 {
     [SerializeField] private float m_radius;
     [SerializeField] private readonly Vector2 m_offset;
+    private Sprite m_sprite;
 
     public void Start()
     {
         RayCaster.register(this);
+        m_sprite = this.GetComponent<SpriteRenderer>().sprite;
     }
 
     public override bool collide(Ray ray, out RayHit hit)
@@ -37,8 +39,33 @@ public class RayCircleCollider : RayCollider
             return false;
         }
         Vector2 normal = (poi - center).normalized;
-        hit = new RayHit(ray, poi, normal, this);
+        Vector2 pixel = textureSpaceCoord(poi);
+        hit = new RayHit(ray, poi, normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         return true;
+    }
+
+    private Vector2 textureSpaceUV(Vector2 worldPos)
+    {
+        Texture2D tex = m_sprite.texture;
+        Vector2 texSpaceCoord = textureSpaceCoord(worldPos);
+
+        Vector2 uvs = texSpaceCoord;
+        uvs.x /= tex.width;
+        uvs.y /= tex.height;
+
+        return uvs;
+    }
+
+    private Vector2 textureSpaceCoord(Vector2 worldPos)
+    {
+        float ppu = m_sprite.pixelsPerUnit;
+
+        Vector2 localPos = transform.InverseTransformPoint(worldPos) * ppu;
+
+        Vector2 texSpacePivot = new Vector2(m_sprite.rect.x, m_sprite.rect.y) + m_sprite.pivot;
+        Vector2 texSpaceCoord = texSpacePivot + localPos;
+
+        return texSpaceCoord;
     }
 
     public Vector2 center

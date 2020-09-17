@@ -7,12 +7,25 @@ public class Ray : MonoBehaviour
 {
     private Ray m_bounce = null;
     private RayHit m_bounceInfo = null;
+    [SerializeField] private Color m_color = new Color(1,1,1);
 
     public Vector2 position
     {
         get
         {
             return new Vector2(this.transform.position.x, this.transform.position.y);
+        }
+    }
+
+    public Color color
+    {
+        set
+        {
+            m_color = value;
+        }
+        get
+        {
+            return m_color;
         }
     }
 
@@ -50,6 +63,7 @@ public class Ray : MonoBehaviour
         reflectRayGo.transform.position = hit.point + hit.normal.normalized*0.1f;
         reflectRayGo.transform.rotation = Quaternion.AngleAxis(Mathf.Rad2Deg * Mathf.Atan2(hit.normal.y, hit.normal.x), new Vector3(0, 0, 1));
         reflectRayGo.tag = "Ray";
+        reflect.color = m_color * hit.color;
         m_bounce = reflect;
         m_bounceInfo = hit;
         return reflect;
@@ -57,7 +71,7 @@ public class Ray : MonoBehaviour
 
     public void Update()
     {
-        Debug.DrawRay(position, direction, Color.red);
+        Debug.DrawRay(position, direction, m_color);
     }
 
     public void OnDestroy()

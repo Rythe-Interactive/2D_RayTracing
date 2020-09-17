@@ -8,13 +8,15 @@ public class RayHit
     public readonly Vector2 point;
     public readonly Vector2 normal;
     public readonly RayCollider collider;
+    public readonly Color color;
 
-    public RayHit(Ray ray, Vector2 point, Vector2 normal, RayCollider collider)
+    public RayHit(Ray ray, Vector2 point, Vector2 normal, RayCollider collider, Color color)
     {
         this.ray = ray;
         this.point = point;
         this.normal = normal;
         this.collider = collider;
+        this.color = color;
     }
 
     public override bool Equals(object obj)
