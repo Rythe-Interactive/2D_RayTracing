@@ -5,6 +5,7 @@ using UnityEditor;
 
 public class Ray
 {
+    private bool m_hasBounce;
     private Ray m_bounce;
     private RayHit m_bounceInfo;
     private Vector2 m_position;
@@ -21,6 +22,7 @@ public class Ray
         m_maxDepth = maxDepth;
         m_origin = origin;
 
+        m_hasBounce = false;
         m_bounce = null;
         m_bounceInfo = new RayHit(this);
         RayVisualizer.instance.register(this);
@@ -31,6 +33,11 @@ public class Ray
 
     public Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = 1) :
         this(position, direction, origin, new Color(1, 1, 1), maxDepth) { }
+
+    ~Ray()
+    {
+        RayVisualizer.instance.unRegister(this);
+    }
 
     #region getters
 
@@ -85,18 +92,29 @@ public class Ray
     {
         if (hit.nullHit)
         {
-            m_bounce = null;
-            m_bounceInfo = new RayHit(this);
+            m_hasBounce = false;
             return null;
         }
-        else if (hit.Equals(m_bounceInfo)) return m_bounce;
+        else if (m_hasBounce && hit.Equals(m_bounceInfo))
+        {
+            return m_bounce;
+        }
         else if (m_maxDepth == 0) return null;
-        m_bounce = null;
+        //Reflect happens
+
         Vector2 reflectDir = Vector2.Reflect(m_direction, hit.normal).normalized;
-        Ray reflect = new Ray(hit.point, reflectDir, m_color * hit.color, m_maxDepth-1);
-        m_bounce = reflect;
-        m_bounceInfo = hit;
-        return reflect;
+        m_hasBounce = true;
+        if (m_bounce == null)
+        {
+            m_bounce = new Ray(hit.point, reflectDir, m_color * hit.color, m_maxDepth - 1);
+            m_bounceInfo = hit;
+        }
+        else
+        {
+            Color cl = m_color * hit.color;
+            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
+        }
+        return m_bounce;
     }
 
     public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
@@ -112,7 +130,6 @@ public class Ray
         m_maxDepth = maxDepth;
         m_origin = origin;
 
-        m_bounce = null;
-        m_bounceInfo = new RayHit(this); ;
+        m_hasBounce = false;
     }
 }

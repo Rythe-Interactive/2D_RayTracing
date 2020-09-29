@@ -8,6 +8,7 @@ public class RayVisualizer : MonoBehaviour
     public static RayVisualizer instance;
     [SerializeField] int m_rayCount;
 
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -29,5 +30,10 @@ public class RayVisualizer : MonoBehaviour
     public void register(Ray ray)
     {
         m_rays.Add(ray);
+    }
+
+    public void unRegister(Ray ray)
+    {
+        m_rays.Remove(ray);
     }
 }

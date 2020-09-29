@@ -13,7 +13,7 @@ public class RayCircleCollider : RayCollider
 
     public void Start()
     {
-        RayTracer.register(this);
+        RayTracer.get().register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
     }
 
@@ -53,7 +53,9 @@ public class RayCircleCollider : RayCollider
 
     public override bool pointOnSurface(Vector2 point)
     {
-        return (point - center).magnitude <= m_radius && m_renderable;
+        float dist = (point - center).magnitude;
+        return m_renderable && dist >= m_radius * 0.9f && dist <= m_radius;
+        //return m_renderable && dist <= m_radius;
     }
 
     private Vector2 textureSpaceUV(Vector2 worldPos)

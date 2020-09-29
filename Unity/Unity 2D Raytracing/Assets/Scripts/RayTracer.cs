@@ -2,55 +2,77 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class RayTracer
+public class RayTracer : MonoBehaviour
 {
-    private static List<RayCollider> m_colliders;
-    private static List<RayHit> m_rayHits;
-    private static Ray[,] m_rays;
+    private List<RayCollider> m_colliders;
+    private List<RayHit> m_rayHits;
+    private Ray[,] m_rays;
+    public int renderLines = 87;
+    private int m_renderLinesCycle;
+    private static RayTracer m_instance;
+    public float resolution = 1.0f;
+    private Vector2Int m_rayCount;
 
-    public static void Start()
+    public static RayTracer get()
     {
-        Camera cam = Camera.main;
-        m_rays = new Ray[cam.pixelWidth, cam.pixelHeight];
+        return m_instance;
+    }
 
-        for (int y = 0; y < cam.pixelHeight; ++y)
+    public void Awake()
+    {
+        if (m_instance != null) Destroy(this);
+        m_instance = this;
+        resolution = Mathf.Max(0.0f, resolution);
+        Camera cam = Camera.main;
+        m_rayCount.x = (int)(cam.pixelWidth * resolution);
+        m_rayCount.y = (int)(cam.pixelHeight * resolution);
+        m_rays = new Ray[m_rayCount.x, m_rayCount.y];
+
+        for (int y = 0; y < m_rayCount.y; ++y)
         {
-            for (int x = 0; x < cam.pixelWidth; ++x)
+            for (int x = 0; x < m_rayCount.x; ++x)
             {
                 m_rays[x, y] = new Ray(new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1));
             }
         }
+        Debug.Log(m_rayCount);
     }
 
-    public static void register(RayCollider collider)
+    public void register(RayCollider collider)
     {
         if (m_colliders == null) m_colliders = new List<RayCollider>();
         m_colliders.Add(collider);
     }
 
-    public static void unRegister(RayCollider collider)
+    public void unRegister(RayCollider collider)
     {
         if (m_colliders == null) return;
         m_colliders.Remove(collider);
     }
 
-    public static void render()
+    public void Update()
     {
         m_rayHits?.Clear();
 
         Camera cam = Camera.main;
         //amount of world units
-        Vector2 worldUnits = new Vector2(
-            cam.orthographicSize*2*Screen.width/Screen.height,
-            cam.orthographicSize * 2);
+        float ortho = cam.orthographicSize;
+        Vector2 worldUnits = new Vector2( ortho * 2 * Screen.width / Screen.height, ortho * 2);
 
-        for (int y = 0; y < cam.pixelHeight; ++y)
+
+        int mod = m_rayCount.y / renderLines;
+
+        for (int y = 0; y < m_rayCount.y; ++y)
         {
-            for(int x = 0; x < cam.pixelWidth; ++x)
+            //if ((y + m_renderLinesCycle) % mod != 0)
+            //{
+            //    continue;
+            //}
+            for (int x = 0; x < m_rayCount.x; ++x)
             {
-                for(int i = 0; i < m_colliders.Count; ++i)
+                for (int i = 0; i < m_colliders.Count; ++i)
                 {
-                    Vector2 worldPos = cam.ScreenToWorldPoint(new Vector2(x, y));
+                    Vector2 worldPos = cam.ScreenToWorldPoint(new Vector2(x/resolution, y/resolution));
                     if (m_colliders[i].pointOnSurface(worldPos))
                     {
                         m_colliders[i].setRay(m_rays[x, y], worldPos.x, worldPos.y);
@@ -59,10 +81,10 @@ public static class RayTracer
             }
         }
 
-        for (int i = 0; i < cam.pixelWidth*cam.pixelHeight; ++i)
+        for (int i = 0; i < m_rayCount.x * m_rayCount.y; ++i)
         {
-            int x = i % cam.pixelWidth;
-            int y = i / cam.pixelWidth;
+            int x = i % m_rayCount.x;
+            int y = i / m_rayCount.x;
 
             RayHit hit = collide(m_rays[x,y]);
             if (!hit.nullHit)
@@ -71,9 +93,14 @@ public static class RayTracer
                 //m_rayHits.Add(hit);
             }
         }
+        ++m_renderLinesCycle;
     }
 
-    public static RayHit collide(Ray ray)
+    public void render()
+    {
+    }
+
+    public RayHit collide(Ray ray)
     {
         if (m_colliders == null) return new RayHit(ray);
         RayHit hit = new RayHit(ray);

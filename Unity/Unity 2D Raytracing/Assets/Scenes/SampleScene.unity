@@ -131,9 +131,10 @@ GameObject:
   m_Component:
   - component: {fileID: 427748358}
   - component: {fileID: 427748357}
+  - component: {fileID: 427748360}
   - component: {fileID: 427748359}
   m_Layer: 0
-  m_Name: Handler
+  m_Name: RayTracer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,7 +147,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 427748356}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3478f4fa6c73a4429ef92a6c3f0c66b, type: 3}
   m_Name: 
@@ -178,6 +179,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_rayCount: 0
+--- !u!114 &427748360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427748356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 255d7b02b4a02274590458cbbf3adbd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderLines: 87
+  resolution: 0.5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,7 +338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4beb985f0630aea47ac5d5d22844bc1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1.27
+  m_radius: 1.28
   m_renderable: 0
 --- !u!212 &618494986
 SpriteRenderer:
@@ -383,7 +398,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 618494984}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.56, y: -0.77, z: 0}
+  m_LocalPosition: {x: -6.48, y: -0.39, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -419,7 +434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4beb985f0630aea47ac5d5d22844bc1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1.27
+  m_radius: 1.28
   m_renderable: 1
 --- !u!212 &2135527928
 SpriteRenderer:
