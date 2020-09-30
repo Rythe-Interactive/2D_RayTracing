@@ -88,11 +88,20 @@ public class Ray
 
     #endregion
 
+    public void resetReflect()
+    {
+        m_hasBounce = false;
+        if (m_bounce != null)
+        {
+            m_bounce.setColor(0, 0, 0, 0);
+        }
+    }
+
     public Ray reflect(RayHit hit)
     {
         if (hit.nullHit)
         {
-            m_hasBounce = false;
+            resetReflect();
             return null;
         }
         else if (m_hasBounce && hit.Equals(m_bounceInfo))
@@ -117,6 +126,14 @@ public class Ray
         return m_bounce;
     }
 
+    public void setColor(float r, float g, float b, float a = 1.0f)
+    {
+        m_color.r = r;
+        m_color.g = g;
+        m_color.b = b;
+        m_color.a = a;
+    }
+
     public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
     {
         reUse(x, y, dirX, dirY, null, r, g, b, a, maxDepth);
@@ -126,7 +143,7 @@ public class Ray
     {
         m_position.Set(x, y);
         m_direction.Set(dirX, dirY);
-        m_color = color;
+        setColor(r, g, b, a);
         m_maxDepth = maxDepth;
         m_origin = origin;
 

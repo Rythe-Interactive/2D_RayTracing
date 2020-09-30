@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 427748357}
   - component: {fileID: 427748360}
   - component: {fileID: 427748359}
+  - component: {fileID: 427748361}
   m_Layer: 0
   m_Name: RayTracer
   m_TagString: Untagged
@@ -191,8 +192,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 255d7b02b4a02274590458cbbf3adbd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderLines: 87
-  resolution: 0.5
+  resolution: 1
+  m_mainCamera: {fileID: 519420031}
+--- !u!114 &427748361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427748356}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4cf4f4ce78c0f048bdef48570efd2d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_pauseAtTime: 2
+  m_stopAtTime: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,6 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_radius: 1.28
   m_renderable: 0
+  m_raySurfacePrecision: 0.85
 --- !u!212 &618494986
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -436,6 +452,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_radius: 1.28
   m_renderable: 1
+  m_raySurfacePrecision: 0.85
 --- !u!212 &2135527928
 SpriteRenderer:
   m_ObjectHideFlags: 0
