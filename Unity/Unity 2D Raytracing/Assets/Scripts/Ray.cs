@@ -134,6 +134,17 @@ public class Ray
         m_color.a = a;
     }
 
+    public void setPosition(float x, float y)
+    {
+        m_position.Set(x, y);
+        m_hasBounce = false;
+    }
+
+    public void reset()
+    {
+        reUse(0, 0, 0, 0, null, 0, 0, 0, 0, 0);
+    }
+
     public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
     {
         reUse(x, y, dirX, dirY, null, r, g, b, a, maxDepth);

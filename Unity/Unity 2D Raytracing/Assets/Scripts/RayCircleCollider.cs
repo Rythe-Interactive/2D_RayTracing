@@ -14,7 +14,7 @@ public class RayCircleCollider : RayCollider
 
     public void Start()
     {
-        RayTracer.get().register(this);
+        //RayTracer.get().register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
         m_raySurfacePrecision = Mathf.Max(0, Mathf.Min(1, m_raySurfacePrecision));
     }
