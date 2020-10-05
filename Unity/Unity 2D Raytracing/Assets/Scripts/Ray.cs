@@ -14,7 +14,9 @@ public class Ray
     private int m_maxDepth;
     private RayCollider m_origin;
 
-    public Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = 1)
+    private const int stdDepth = 2;
+
+    public Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
     {
         m_position = position;
         m_direction = direction;
@@ -28,10 +30,10 @@ public class Ray
         RayVisualizer.instance.register(this);
     }
 
-    public Ray(Vector2 position, Vector2 direction, Color color, int maxDepth = 1) : 
+    public Ray(Vector2 position, Vector2 direction, Color color, int maxDepth = stdDepth) : 
         this(position, direction, null, color, maxDepth) { }
 
-    public Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = 1) :
+    public Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = stdDepth) :
         this(position, direction, origin, new Color(1, 1, 1), maxDepth) { }
 
     ~Ray()
@@ -93,7 +95,8 @@ public class Ray
         m_hasBounce = false;
         if (m_bounce != null)
         {
-            m_bounce.setColor(0, 0, 0, 0);
+            m_bounce.reUse(0, 0, 0, 0, null, 0, 0, 0);
+            m_bounce.resetReflect();
         }
     }
 
@@ -109,14 +112,15 @@ public class Ray
             return m_bounce;
         }
         else if (m_maxDepth == 0) return null;
+        
         //Reflect happens
-
         Vector2 reflectDir = Vector2.Reflect(m_direction, hit.normal).normalized;
         m_hasBounce = true;
         if (m_bounce == null)
         {
             m_bounce = new Ray(hit.point, reflectDir, m_color * hit.color, m_maxDepth - 1);
             m_bounceInfo = hit;
+            
         }
         else
         {
@@ -125,6 +129,32 @@ public class Ray
         }
         return m_bounce;
     }
+
+    public Ray getBounce()
+    {
+        return m_bounce;
+    }
+
+    public bool hasBounce()
+    {
+        return m_hasBounce;
+    }
+
+    public List<Ray> getBounces()
+    {
+        List<Ray> rays = new List<Ray>();
+        if (m_hasBounce)
+        {
+            rays.Add(m_bounce);
+            List<Ray> childBounces = m_bounce.getBounces();
+            if(childBounces != null)
+            {
+                rays.AddRange(childBounces);
+            }
+        }
+        return rays;
+    }
+
 
     public void setColor(float r, float g, float b, float a = 1.0f)
     {
@@ -145,12 +175,12 @@ public class Ray
         reUse(0, 0, 0, 0, null, 0, 0, 0, 0, 0);
     }
 
-    public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
+    public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
     {
         reUse(x, y, dirX, dirY, null, r, g, b, a, maxDepth);
     }
 
-    public void reUse(float x, float y, float dirX, float dirY, RayCollider origin, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = 1)
+    public void reUse(float x, float y, float dirX, float dirY, RayCollider origin, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
     {
         m_position.Set(x, y);
         m_direction.Set(dirX, dirY);

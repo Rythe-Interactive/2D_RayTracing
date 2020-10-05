@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class RayTracedLight : MonoBehaviour
 {
-    [SerializeField] int rayCount = 10;
-    [SerializeField] private bool m_debugDrawRays = true;
+    [SerializeField] private int rayCount = 10;
+    [SerializeField] private RayTracer m_tracer;
 
     private List<Ray> m_rays;
     private Vector2 m_position;
@@ -18,11 +18,11 @@ public class RayTracedLight : MonoBehaviour
         m_rays = new List<Ray>();
         for (int i = 0; i < m_rayCount; ++i)
         {
-            
             float angle = 360 / (float)m_rayCount * (float)i;
             Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
             Ray ray = new Ray(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>());
             m_rays.Add(ray);
+            m_tracer.register(ray);
         }
     }
 
@@ -40,6 +40,7 @@ public class RayTracedLight : MonoBehaviour
                 float angle = 360 / (float)rayCount * (float)i;
                 Debug.Log("\tAngle: " + angle);
                 Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
+                Ray ray;
 
                 if (i >= m_rayCount)
                 {
@@ -49,14 +50,17 @@ public class RayTracedLight : MonoBehaviour
                     {
                         Debug.Log("\tIndex out of bounds for list --> adding");
                         // The list is not yet big enough, thus increase the size
-                        m_rays.Add(new Ray(m_position, direction, this.gameObject.GetComponent<RayCollider>()));
+                        ray = new Ray(m_position, direction, this.gameObject.GetComponent<RayCollider>());
+                        m_rays.Add(ray);
                     }
                     else
                     {
                         Debug.Log("\tIndex does still exist in list --> reusing ray");
                         // The list still has unused elements
                         m_rays[i].reUse(m_position.x, m_position.y, direction.x, direction.y, this.GetComponent<RayCollider>());
+                        ray = m_rays[i];
                     }
+                    m_tracer.register(ray);
                 }
                 else if (i >= rayCount)
                 {
@@ -64,7 +68,7 @@ public class RayTracedLight : MonoBehaviour
                     // RayCount has decreased
                     // Rays will not be removed from the list, but will be reset completely
                     m_rays[i].reset();
-                    if (m_debugDrawRays) RayVisualizer.instance.unRegister(m_rays[i]);
+                    m_tracer.unRegister(m_rays[i]);
                 }
                 else
                 {

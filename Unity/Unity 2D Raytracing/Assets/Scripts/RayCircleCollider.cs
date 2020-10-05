@@ -9,14 +9,17 @@ public class RayCircleCollider : RayCollider
     [SerializeField] private readonly Vector2 m_offset;
     private Sprite m_sprite;
     private List<Ray> m_rays;
-    [SerializeField] private bool m_renderable = true;
-    [SerializeField][Range(0.0f, 1.0f)] private float m_raySurfacePrecision = 0.85f;
+    [SerializeField] RayTracer m_tracer;
 
     public void Start()
     {
-        //RayTracer.get().register(this);
+        m_tracer.register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
-        m_raySurfacePrecision = Mathf.Max(0, Mathf.Min(1, m_raySurfacePrecision));
+    }
+
+    public void OnDestroy()
+    {
+        m_tracer.unRegister(this);
     }
 
     public override bool collide(Ray ray, out RayHit hit)
@@ -52,14 +55,7 @@ public class RayCircleCollider : RayCollider
         hit = new RayHit(ray, poi, normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         return true;
     }
-
-    public override bool pointOnSurface(Vector2 point)
-    {
-        float dist = (point - center).magnitude;
-        return m_renderable && dist >= m_radius * m_raySurfacePrecision && dist <= m_radius;
-        //return m_renderable && dist <= m_radius;
-    }
-
+    
     private Vector2 textureSpaceUV(Vector2 worldPos)
     {
         Texture2D tex = m_sprite.texture;
@@ -82,12 +78,6 @@ public class RayCircleCollider : RayCollider
         Vector2 texSpaceCoord = texSpacePivot + localPos;
 
         return texSpaceCoord;
-    }
-
-    public override void setRay(Ray ray, float x, float y)
-    {
-        Vector2 direction = (new Vector2(x, y) - center).normalized;
-        ray.reUse(x, y, direction.x, direction.y, this);
     }
 
     public Vector2 center
