@@ -10,6 +10,7 @@ public class RayCircleCollider : RayCollider
     private Sprite m_sprite;
     private List<Ray> m_rays;
     [SerializeField] RayTracer m_tracer;
+    [SerializeField] private List<RayHit> m_hits;
 
     public void Start()
     {
@@ -55,7 +56,17 @@ public class RayCircleCollider : RayCollider
         hit = new RayHit(ray, poi, normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         return true;
     }
-    
+
+    public override void registerHit(RayHit hit)
+    {
+        m_hits.Add(hit);
+    }
+
+    public override void clearHits()
+    {
+        m_hits.Clear();
+    }
+
     private Vector2 textureSpaceUV(Vector2 worldPos)
     {
         Texture2D tex = m_sprite.texture;

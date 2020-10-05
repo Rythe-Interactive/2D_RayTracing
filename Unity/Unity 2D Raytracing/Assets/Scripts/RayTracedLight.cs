@@ -6,10 +6,14 @@ public class RayTracedLight : MonoBehaviour
 {
     [SerializeField] private int rayCount = 10;
     [SerializeField] private RayTracer m_tracer;
+    [SerializeField] private Color m_color;
+    [SerializeField] private bool m_useSpriteRendColor;
 
     private List<Ray> m_rays;
     private Vector2 m_position;
     private int m_rayCount;
+    private SpriteRenderer m_spriteRend;
+    private Color m_previousColor;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +28,13 @@ public class RayTracedLight : MonoBehaviour
             m_rays.Add(ray);
             m_tracer.register(ray);
         }
+
+        if (m_useSpriteRendColor)
+        {
+            m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
+            m_color = m_spriteRend.color;
+        }
+        m_previousColor = new Color(m_color.r, m_color.g, m_color.b, m_color.a);
     }
 
     // Update is called once per frame
@@ -33,6 +44,7 @@ public class RayTracedLight : MonoBehaviour
         if (m_rayCount != rayCount)
         {
             Debug.Log("Raycount changed from: " + m_rayCount + " to: " + rayCount);
+            if (m_useSpriteRendColor) m_color = m_spriteRend.color;
             m_position = this.transform.position;
             for (int i = 0; i < Mathf.Max(rayCount, m_rayCount); ++i)
             {
@@ -90,6 +102,29 @@ public class RayTracedLight : MonoBehaviour
                 {
                     m_rays[i].setPosition(pos.x, pos.y);
                 }
+            }
+
+            // If color changed
+            bool colorChanged = false;
+            if(!m_useSpriteRendColor && m_previousColor != m_color)
+            {
+                m_previousColor.r = m_color.r;
+                m_previousColor.g = m_color.g;
+                m_previousColor.b = m_color.b;
+                m_previousColor.a = m_color.a;
+                colorChanged = true;
+            }
+            if(m_useSpriteRendColor && m_spriteRend.color != m_color)
+            {
+                m_color.r = m_spriteRend.color.r;
+                m_color.g = m_spriteRend.color.g;
+                m_color.b = m_spriteRend.color.b;
+                m_color.a = m_spriteRend.color.a;
+                colorChanged = true;
+            }
+            for(int i = 0; i < m_rayCount; ++i)
+            {
+                m_rays[i].setColor(m_color.r, m_color.g, m_color.b, m_color.a);
             }
         }
 

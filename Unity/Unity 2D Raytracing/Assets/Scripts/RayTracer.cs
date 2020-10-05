@@ -34,6 +34,10 @@ public class RayTracer : MonoBehaviour
     public void Update()
     {
         m_rayHits?.Clear();
+        for(int i = 0; i < m_colliders.Count; ++i)
+        {
+            m_colliders[i].clearHits();
+        }
 
         for (int r = 0; r < m_rays.Count; ++r)
         {
@@ -45,13 +49,12 @@ public class RayTracer : MonoBehaviour
                 RayHit hit = collide(rays[i]);
                 if (!hit.nullHit)
                 {
-                    rays[i].setColor(1, 0, 0);
-                    //if(m_rayHits == null) m_rayHits = new List<RayHit>();
-                    //m_rayHits.Add(hit);
+                    if(m_rayHits == null) m_rayHits = new List<RayHit>();
+                    m_rayHits.Add(hit);
+                    hit.collider.registerHit(hit);
                 }
                 else
                 {
-                    rays[i].setColor(1, 1, 1);
                 }
 
                 if(!rays[i].hasBounce())
