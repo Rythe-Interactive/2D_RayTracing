@@ -11,11 +11,19 @@ public class RayCircleCollider : RayCollider
     private List<Ray> m_rays;
     [SerializeField] RayTracer m_tracer;
     [SerializeField] private List<RayHit> m_hits;
+    [SerializeField] private Texture2D m_lightTexture;
 
     public void Start()
     {
         m_tracer.register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
+        m_lightTexture = new Texture2D(m_sprite.texture.width*2, m_sprite.texture.height*2);
+        for(int y = 0; y < m_sprite.texture.height*2; ++y)
+            for(int x = 0; x < m_sprite.texture.width*2; ++x)
+            {
+                m_lightTexture.SetPixel(x, y, Color.black);
+            }
+        m_lightTexture.Apply();
     }
 
     public void OnDestroy()
@@ -53,13 +61,21 @@ public class RayCircleCollider : RayCollider
         }
         Vector2 normal = (poi - center).normalized;
         Vector2 pixel = textureSpaceCoord(poi);
-        hit = new RayHit(ray, poi, normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
+        hit = new RayHit(ray, poi, new Vector2Int((int)pixel.x, (int)pixel.y), normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         return true;
     }
 
     public override void registerHit(RayHit hit)
     {
         m_hits.Add(hit);
+        m_lightTexture.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
+    }
+
+    public override void applyHits()
+    {
+        m_lightTexture.Apply();
+        Sprite sprite = Sprite.Create(m_lightTexture, m_sprite.rect, m_sprite.pivot);
+        this.gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
     }
 
     public override void clearHits()

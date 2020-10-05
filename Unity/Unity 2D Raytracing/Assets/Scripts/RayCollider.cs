@@ -7,4 +7,5 @@ public abstract class RayCollider : MonoBehaviour
     public abstract bool collide(Ray ray, out RayHit hit);
     public abstract void registerHit(RayHit hit);
     public abstract void clearHits();
+    public abstract void applyHits();
 }

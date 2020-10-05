@@ -64,6 +64,11 @@ public class RayTracer : MonoBehaviour
                 }
             }
         }
+
+        for (int i = 0; i < m_colliders.Count; ++i)
+        {
+            m_colliders[i].applyHits();
+        }
     }
 
     public RayHit collide(Ray ray)

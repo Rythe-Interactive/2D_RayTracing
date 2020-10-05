@@ -11,8 +11,9 @@ public struct RayHit
     public readonly RayCollider collider;
     public readonly Color color;
     public readonly bool nullHit;
+    public readonly Vector2Int pixel;
 
-    public RayHit(Ray ray, Vector2 point, Vector2 normal, RayCollider collider, Color color)
+    public RayHit(Ray ray, Vector2 point, Vector2Int pixel, Vector2 normal, RayCollider collider, Color color)
     {
         this.ray = ray;
         this.point = point;
@@ -20,6 +21,7 @@ public struct RayHit
         this.collider = collider;
         this.color = color;
         this.nullHit = false;
+        this.pixel = pixel;
     }
 
     // Sets ray hit to 'null'
@@ -32,6 +34,7 @@ public struct RayHit
         this.collider = null;
         this.color = new Color(0,0,0);
         this.nullHit = true;
+        this.pixel = new Vector2Int(0, 0);
     }
 
     public bool Equals(RayHit hit)
