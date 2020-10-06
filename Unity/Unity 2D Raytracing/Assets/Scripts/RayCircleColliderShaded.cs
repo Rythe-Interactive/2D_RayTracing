@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class RayCircleCollider : RayCollider
+public class RayCircleColliderShaded : RayCollider
 {
     [SerializeField] private float m_radius;
     [SerializeField] private readonly Vector2 m_offset;
@@ -11,19 +11,23 @@ public class RayCircleCollider : RayCollider
     private List<Ray> m_rays;
     [SerializeField] RayTracer m_tracer;
     [SerializeField] private List<RayHit> m_hits;
-    [SerializeField] private Texture2D m_lightTexture;
+    [SerializeField] private Texture2D m_lightTextureEdit;
+    [SerializeField] private Material m_rayTracingOutlineMaterial;
 
     public void Start()
     {
         m_tracer.register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
-        if(m_lightTexture == null) m_lightTexture = new Texture2D(m_sprite.texture.width*2, m_sprite.texture.height*2);
-        for(int y = 0; y < m_lightTexture.height*2; ++y)
-            for(int x = 0; x < m_lightTexture.width *2; ++x)
+        if(m_lightTextureEdit == null) m_lightTextureEdit = new Texture2D(m_sprite.texture.width, m_sprite.texture.height);
+        for(int y = 0; y < m_lightTextureEdit.height; ++y)
+            for(int x = 0; x < m_lightTextureEdit.width; ++x)
             {
-                m_lightTexture.SetPixel(x, y, Color.black);
+                m_lightTextureEdit.SetPixel(x, y, Color.clear);
             }
-        m_lightTexture.Apply();
+        m_lightTextureEdit.Apply();
+        m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
+        m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightTextureEdit);
+        applyHits();
     }
 
     public void OnDestroy()
@@ -68,12 +72,18 @@ public class RayCircleCollider : RayCollider
     public override void registerHit(RayHit hit)
     {
         m_hits.Add(hit);
-        m_lightTexture.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
+        m_lightTextureEdit.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
     }
 
     public override void applyHits()
     {
-        m_lightTexture.Apply();
+        m_lightTextureEdit.Apply();
+
+        for (int y = 0; y < m_lightTextureEdit.height; ++y)
+            for (int x = 0; x < m_lightTextureEdit.width; ++x)
+            {
+                m_lightTextureEdit.SetPixel(x, y, Color.clear);
+            }
         //Sprite sprite = Sprite.Create(m_lightTexture, m_sprite.rect, m_sprite.pivot);
         //this.gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
     }
@@ -124,14 +134,14 @@ public class RayCircleCollider : RayCollider
     }
 }
 
-[CustomEditor(typeof(RayCircleCollider))]
-public class RayCircleColliderEditor : Editor
+[CustomEditor(typeof(RayCircleColliderShaded))]
+public class RayCircleColliderShadedEditor : Editor
 {
-    private RayCircleCollider m_collider;
+    private RayCircleColliderShaded m_collider;
 
     public void OnSceneGUI()
     {
-        m_collider = this.target as RayCircleCollider;
+        m_collider = this.target as RayCircleColliderShaded;
         Handles.color = Color.red;
         Handles.DrawWireDisc(m_collider.center, Vector3.forward, m_collider.radius);
     }
