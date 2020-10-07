@@ -12,12 +12,16 @@ public class RayCircleColliderShaded : RayCollider
     [SerializeField] RayTracer m_tracer;
     [SerializeField] private List<RayHit> m_hits;
     [SerializeField] private Texture2D m_lightTextureEdit;
-    [SerializeField] private Material m_rayTracingOutlineMaterial;
+    private Material m_rayTracingOutlineMaterial;
 
     public void Start()
     {
         m_tracer.register(this);
-        m_sprite = this.GetComponent<SpriteRenderer>().sprite;
+        SpriteRenderer renderer = this.GetComponent<SpriteRenderer>();
+        m_sprite = renderer.sprite;
+        m_rayTracingOutlineMaterial = renderer.material; // Create instance of material
+        renderer.material = m_rayTracingOutlineMaterial;
+
         if(m_lightTextureEdit == null) m_lightTextureEdit = new Texture2D(m_sprite.texture.width, m_sprite.texture.height);
         m_lightTextureEdit.minimumMipmapLevel = 2;
         m_lightTextureEdit.requestedMipmapLevel = 3;
