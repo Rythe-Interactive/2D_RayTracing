@@ -170,6 +170,12 @@ public class Ray
         m_hasBounce = false;
     }
 
+    public void setDirection(float x, float y)
+    {
+        m_direction.Set(x, y);
+        m_hasBounce = false;
+    }
+
     public void reset()
     {
         reUse(0, 0, 0, 0, null, 0, 0, 0, 0, 0);

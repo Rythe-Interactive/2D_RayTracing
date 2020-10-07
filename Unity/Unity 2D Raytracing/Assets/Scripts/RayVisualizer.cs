@@ -17,8 +17,7 @@ public class RayVisualizer : MonoBehaviour
         else Destroy(this.gameObject);
     }
 
-    // Update is called once per frame
-    public void Update()
+    public void FixedUpdate()
     {
         for (int i = 0; i < m_rays.Count; ++i)
         {

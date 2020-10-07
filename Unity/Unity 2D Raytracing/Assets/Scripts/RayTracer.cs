@@ -33,10 +33,14 @@ public class RayTracer : MonoBehaviour
 
     public void Update()
     {
+        if (m_rays == null) return;
         m_rayHits?.Clear();
-        for(int i = 0; i < m_colliders.Count; ++i)
+        if (m_colliders != null)
         {
-            m_colliders[i].clearHits();
+            for (int i = 0; i < m_colliders.Count; ++i)
+            {
+                m_colliders[i].clearHits();
+            }
         }
 
         for (int r = 0; r < m_rays.Count; ++r)
@@ -65,9 +69,12 @@ public class RayTracer : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < m_colliders.Count; ++i)
+        if (m_colliders != null)
         {
-            m_colliders[i].applyHits();
+            for (int i = 0; i < m_colliders.Count; ++i)
+            {
+                m_colliders[i].applyHits();
+            }
         }
     }
 

@@ -2,24 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RayTracedLight : MonoBehaviour
+public class RayTracedPointLight : RayTracedLight
 {
-    [SerializeField] private int rayCount = 10;
-    [SerializeField] private RayTracer m_tracer;
-    [SerializeField] private Color m_color;
-    [SerializeField] private bool m_useSpriteRendColor;
-
-    private List<Ray> m_rays;
-    private Vector2 m_position;
-    private int m_rayCount;
-    private SpriteRenderer m_spriteRend;
-    private Color m_previousColor;
-
     // Start is called before the first frame update
-    void Start()
+    protected override void init()
     {
-        m_rayCount = rayCount;
-        m_rays = new List<Ray>();
         for (int i = 0; i < m_rayCount; ++i)
         {
             float angle = 360 / (float)m_rayCount * (float)i;
@@ -28,30 +15,22 @@ public class RayTracedLight : MonoBehaviour
             m_rays.Add(ray);
             m_tracer.register(ray);
         }
-
-        if (m_useSpriteRendColor)
-        {
-            m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
-            m_color = m_spriteRend.color;
-        }
-        m_previousColor = new Color(m_color.r, m_color.g, m_color.b, m_color.a);
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    protected override void update()
     {
         // If rayCount changed
-        if (m_rayCount != rayCount)
+        if (m_currentRayCount != m_rayCount)
         {
             if (m_useSpriteRendColor) m_color = m_spriteRend.color;
             m_position = this.transform.position;
-            for (int i = 0; i < Mathf.Max(rayCount, m_rayCount); ++i)
+            for (int i = 0; i < Mathf.Max(m_currentRayCount, m_rayCount); ++i)
             {
-                float angle = 360 / (float)rayCount * (float)i;
+                float angle = 360 / (float)base.m_rayCount * (float)i;
                 Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
                 Ray ray;
 
-                if (i >= m_rayCount)
+                if (i >= m_currentRayCount)
                 {
                     // RayCount has increased and the ray should be added to the list
                     if (i >= m_rays.Count)
@@ -68,7 +47,7 @@ public class RayTracedLight : MonoBehaviour
                     }
                     m_tracer.register(ray);
                 }
-                else if (i >= rayCount)
+                else if (i >= m_rayCount)
                 {
                     // RayCount has decreased
                     // Rays will not be removed from the list, but will be reset completely
@@ -81,7 +60,7 @@ public class RayTracedLight : MonoBehaviour
                 }
             }
 
-            m_rayCount = rayCount;
+            m_currentRayCount = m_rayCount;
         }
         else // Certain things (like position) do not need changing if rays have been added
         {
@@ -90,7 +69,7 @@ public class RayTracedLight : MonoBehaviour
             if (pos != m_position)
             {
                 m_position = pos;
-                for (int i = 0; i < m_rayCount; ++i)
+                for (int i = 0; i < m_currentRayCount; ++i)
                 {
                     m_rays[i].setPosition(pos.x, pos.y);
                 }
@@ -114,12 +93,13 @@ public class RayTracedLight : MonoBehaviour
                 m_color.a = m_spriteRend.color.a;
                 colorChanged = true;
             }
-            for(int i = 0; i < m_rayCount; ++i)
+            if (colorChanged)
             {
-                m_rays[i].setColor(m_color.r, m_color.g, m_color.b, m_color.a);
+                for (int i = 0; i < m_rayCount; ++i)
+                {
+                    m_rays[i].setColor(m_color.r, m_color.g, m_color.b, m_color.a);
+                }
             }
         }
-
-
     }
 }
