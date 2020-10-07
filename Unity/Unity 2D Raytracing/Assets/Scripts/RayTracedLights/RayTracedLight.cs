@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class RayTracedLight : MonoBehaviour
 {
@@ -14,14 +15,19 @@ public abstract class RayTracedLight : MonoBehaviour
     protected int m_currentRayCount;
     protected SpriteRenderer m_spriteRend;
     protected Color m_previousColor;
+    protected bool m_hasChanged = false;
+
+    protected UnityEvent m_onLightChange;
 
     // Start is called before the first frame update
     void Start()
     {
+        m_onLightChange = new UnityEvent();
+        m_tracer.register(this);
         m_currentRayCount = m_rayCount;
+        m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
         if (m_useSpriteRendColor)
         {
-            m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
             m_color = m_spriteRend.color;
         }
         m_rays = new List<Ray>();
@@ -32,7 +38,56 @@ public abstract class RayTracedLight : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        m_hasChanged = false;
         update();
+        if (m_hasChanged) m_onLightChange.Invoke();
+    }
+
+    public void OnDestroy()
+    {
+        OnDisable();
+    }
+
+    public void OnDisable()
+    {
+        if (m_rays != null)
+        {
+            for (int i = 0; i < m_rays.Count; ++i)
+            {
+                m_tracer.unRegister(m_rays[i]);
+            }
+        }
+        m_tracer.unRegister(this);
+    }
+
+    public void OnEnable()
+    {
+        if (m_rays != null)
+        {
+            for (int i = 0; i < m_rays.Count; ++i)
+            {
+                m_tracer.register(m_rays[i]);
+            }
+        }
+        m_tracer.register(this);
+    }
+
+    public bool hasChanged
+    {
+        get
+        {
+            return m_hasChanged;
+        }
+    }
+
+    public void callBackOnChange(UnityAction action)
+    {
+        m_onLightChange.AddListener(action);
+    }
+
+    public void removeCallBackOnChange(UnityAction action)
+    {
+        m_onLightChange.RemoveListener(action);
     }
 
     abstract protected void init();

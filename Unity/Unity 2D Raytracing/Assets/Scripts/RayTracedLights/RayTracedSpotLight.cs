@@ -26,6 +26,7 @@ public class RayTracedSpotLight : RayTracedLight
         // If rayCount changed
         if (m_currentRayCount != m_rayCount)
         {
+            m_hasChanged = true;
             if (m_useSpriteRendColor) m_color = m_spriteRend.color;
             m_position = this.transform.position;
             m_rotation = this.transform.rotation;
@@ -74,6 +75,7 @@ public class RayTracedSpotLight : RayTracedLight
             Vector2 pos = this.transform.position;
             if (pos != m_position)
             {
+                m_hasChanged = true;
                 m_position = pos;
                 for (int i = 0; i < m_rayCount; ++i)
                 {
@@ -84,6 +86,7 @@ public class RayTracedSpotLight : RayTracedLight
             Quaternion rot = this.transform.rotation;
             if(m_rotation != rot)
             {
+                m_hasChanged = true;
                 m_rotation = rot;
                 for(int i = 0; i < m_rayCount; ++i)
                 {
@@ -114,6 +117,7 @@ public class RayTracedSpotLight : RayTracedLight
             }
             if (colorChanged)
             {
+                m_hasChanged = true;
                 for (int i = 0; i < m_rayCount; ++i)
                 {
                     m_rays[i].setColor(m_color.r, m_color.g, m_color.b, m_color.a);

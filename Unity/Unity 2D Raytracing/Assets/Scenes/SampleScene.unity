@@ -454,8 +454,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4beb985f0630aea47ac5d5d22844bc1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1.28
   m_tracer: {fileID: 427748357}
+  m_radius: 1.28
   m_hits: []
   m_lightTexture: {fileID: 0}
 --- !u!212 &618494986
@@ -584,10 +584,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2df48ce9cd7b65443a33aa44265e85d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1.28
   m_tracer: {fileID: 427748357}
+  m_radius: 1.28
   m_hits: []
-  m_lightTextureEdit: {fileID: 2800000, guid: 4152ce8b589977a4cb6ad692b7a67828, type: 3}
+  m_lightMapTexture: {fileID: 0}
 --- !u!212 &1266287062
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -682,8 +682,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4beb985f0630aea47ac5d5d22844bc1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1
   m_tracer: {fileID: 427748357}
+  m_radius: 1
   m_hits: []
   m_lightTexture: {fileID: 0}
 --- !u!212 &1307051950
@@ -780,10 +780,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2df48ce9cd7b65443a33aa44265e85d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1.28
   m_tracer: {fileID: 427748357}
+  m_radius: 1.28
   m_hits: []
-  m_lightTextureEdit: {fileID: 0}
+  m_lightMapTexture: {fileID: 0}
 --- !u!212 &1520921474
 SpriteRenderer:
   m_ObjectHideFlags: 0

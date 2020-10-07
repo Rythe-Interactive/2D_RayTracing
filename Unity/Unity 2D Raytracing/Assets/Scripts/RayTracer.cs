@@ -1,12 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+
+public class UnityEventRayTracedLight : UnityEvent<RayTracedLight>
+{
+
+}
 
 public class RayTracer : MonoBehaviour
 {
     private List<RayCollider> m_colliders;
     private List<RayHit> m_rayHits;
     private List<Ray> m_rays;
+    private List<RayTracedLight> m_lights;
+    private UnityEventRayTracedLight m_onLightAdd;
+    private UnityEventRayTracedLight m_onLightRemove;
+
+    public void Awake()
+    {
+    }
 
     public void register(Ray ray)
     {
@@ -19,16 +32,54 @@ public class RayTracer : MonoBehaviour
         m_rays.Remove(ray);
     }
 
+    public void register(RayTracedLight light)
+    {
+        if(m_lights == null)
+        {
+            m_lights = new List<RayTracedLight>();
+        }
+        m_lights.Add(light);
+        m_onLightAdd?.Invoke(light);
+    }
+
+    public void unRegister(RayTracedLight light)
+    {
+        m_lights.Remove(light);
+        m_onLightRemove?.Invoke(light);
+    }
+
     public void register(RayCollider collider)
     {
-        if (m_colliders == null) m_colliders = new List<RayCollider>();
+        if (m_colliders == null)
+        {
+            m_colliders = new List<RayCollider>();
+            m_onLightAdd = new UnityEventRayTracedLight();
+            m_onLightRemove = new UnityEventRayTracedLight();
+        }
         m_colliders.Add(collider);
+        if (m_lights != null)
+        {
+            for (int i = 0; i < m_lights.Count; ++i)
+            {
+                collider.onLightAdd(m_lights[i]);
+            }
+        }
     }
 
     public void unRegister(RayCollider collider)
     {
         if (m_colliders == null) return;
         m_colliders.Remove(collider);
+    }
+
+    public void callBackOnLightAdd(UnityAction<RayTracedLight> action)
+    {
+        m_onLightAdd?.AddListener(action);
+    }
+
+    public void callBackOnLightRemove(UnityAction<RayTracedLight> action)
+    {
+        m_onLightAdd?.RemoveListener(action);
     }
 
     public void Update()

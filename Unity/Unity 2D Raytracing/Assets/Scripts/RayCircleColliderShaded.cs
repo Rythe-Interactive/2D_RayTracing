@@ -9,12 +9,11 @@ public class RayCircleColliderShaded : RayCollider
     [SerializeField] private readonly Vector2 m_offset;
     private Sprite m_sprite;
     private List<Ray> m_rays;
-    [SerializeField] RayTracer m_tracer;
     [SerializeField] private List<RayHit> m_hits;
-    [SerializeField] private Texture2D m_lightTextureEdit;
+    [SerializeField] private Texture2D m_lightMapTexture;
     private Material m_rayTracingOutlineMaterial;
 
-    public void Start()
+    protected override void init()
     {
         m_tracer.register(this);
         SpriteRenderer renderer = this.GetComponent<SpriteRenderer>();
@@ -22,17 +21,17 @@ public class RayCircleColliderShaded : RayCollider
         m_rayTracingOutlineMaterial = renderer.material; // Create instance of material
         renderer.material = m_rayTracingOutlineMaterial;
 
-        if(m_lightTextureEdit == null) m_lightTextureEdit = new Texture2D(m_sprite.texture.width, m_sprite.texture.height);
-        m_lightTextureEdit.minimumMipmapLevel = 2;
-        m_lightTextureEdit.requestedMipmapLevel = 3;
-        for(int y = 0; y < m_lightTextureEdit.height; ++y)
-            for(int x = 0; x < m_lightTextureEdit.width; ++x)
+        if(m_lightMapTexture == null) m_lightMapTexture = new Texture2D(m_sprite.texture.width, m_sprite.texture.height);
+        m_lightMapTexture.minimumMipmapLevel = 2;
+        m_lightMapTexture.requestedMipmapLevel = 3;
+        for(int y = 0; y < m_lightMapTexture.height; ++y)
+            for(int x = 0; x < m_lightMapTexture.width; ++x)
             {
-                m_lightTextureEdit.SetPixel(x, y, Color.clear);
+                m_lightMapTexture.SetPixel(x, y, Color.clear);
             }
-        m_lightTextureEdit.Apply();
+        m_lightMapTexture.Apply();
         m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
-        m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightTextureEdit);
+        m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
         applyHits();
     }
 
@@ -78,20 +77,12 @@ public class RayCircleColliderShaded : RayCollider
     public override void registerHit(RayHit hit)
     {
         m_hits.Add(hit);
-        m_lightTextureEdit.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
+        m_lightMapTexture.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
     }
 
     public override void applyHits()
     {
-        m_lightTextureEdit.Apply();
-
-        for (int y = 0; y < m_lightTextureEdit.height; ++y)
-            for (int x = 0; x < m_lightTextureEdit.width; ++x)
-            {
-                m_lightTextureEdit.SetPixel(x, y, Color.clear);
-            }
-        //Sprite sprite = Sprite.Create(m_lightTexture, m_sprite.rect, m_sprite.pivot);
-        //this.gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
+        m_lightMapTexture.Apply();
     }
 
     public override void clearHits()
@@ -121,6 +112,17 @@ public class RayCircleColliderShaded : RayCollider
         Vector2 texSpaceCoord = texSpacePivot + localPos;
 
         return texSpaceCoord;
+    }
+
+    public override void onLightChange()
+    {
+        // Reset light map
+        for (int y = 0; y < m_lightMapTexture.height; ++y)
+            for (int x = 0; x < m_lightMapTexture.width; ++x)
+            {
+                m_lightMapTexture.SetPixel(x, y, Color.clear);
+            }
+        m_lightMapTexture.Apply();
     }
 
     public Vector2 center

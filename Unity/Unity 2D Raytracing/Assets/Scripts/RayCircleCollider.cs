@@ -9,11 +9,10 @@ public class RayCircleCollider : RayCollider
     [SerializeField] private readonly Vector2 m_offset;
     private Sprite m_sprite;
     private List<Ray> m_rays;
-    [SerializeField] RayTracer m_tracer;
     [SerializeField] private List<RayHit> m_hits;
     [SerializeField] private Texture2D m_lightTexture;
 
-    public void Start()
+    protected override void init()
     {
         m_tracer.register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
