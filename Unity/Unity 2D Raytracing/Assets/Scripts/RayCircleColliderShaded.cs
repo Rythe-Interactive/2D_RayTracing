@@ -19,6 +19,8 @@ public class RayCircleColliderShaded : RayCollider
         m_tracer.register(this);
         m_sprite = this.GetComponent<SpriteRenderer>().sprite;
         if(m_lightTextureEdit == null) m_lightTextureEdit = new Texture2D(m_sprite.texture.width, m_sprite.texture.height);
+        m_lightTextureEdit.minimumMipmapLevel = 2;
+        m_lightTextureEdit.requestedMipmapLevel = 3;
         for(int y = 0; y < m_lightTextureEdit.height; ++y)
             for(int x = 0; x < m_lightTextureEdit.width; ++x)
             {
