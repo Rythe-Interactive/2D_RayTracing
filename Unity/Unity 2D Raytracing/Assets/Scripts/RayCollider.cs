@@ -7,8 +7,8 @@ public abstract class RayCollider : MonoBehaviour
     [SerializeField] protected RayTracer m_tracer;
     public void Start()
     {
-        m_tracer.callBackOnLightAdd(onLightAdd);
         init();
+        m_tracer.callBackOnLightAdd(onLightAdd);
     }
     protected abstract void init();
     public void Update()

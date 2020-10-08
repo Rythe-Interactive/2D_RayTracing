@@ -588,7 +588,7 @@ MonoBehaviour:
   m_radius: 1.28
   m_hits: []
   m_lightMapTexture: {fileID: 0}
-  m_useExperimentalLightMapReset: 0
+  m_useExperimentalLightMapReset: 1
 --- !u!212 &1266287062
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -785,7 +785,7 @@ MonoBehaviour:
   m_radius: 1.28
   m_hits: []
   m_lightMapTexture: {fileID: 0}
-  m_useExperimentalLightMapReset: 0
+  m_useExperimentalLightMapReset: 1
 --- !u!212 &1520921474
 SpriteRenderer:
   m_ObjectHideFlags: 0
