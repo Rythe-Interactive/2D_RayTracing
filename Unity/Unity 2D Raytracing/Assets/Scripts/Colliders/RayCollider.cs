@@ -8,6 +8,7 @@ public abstract class RayCollider : MonoBehaviour
     public void Start()
     {
         init();
+        m_tracer.register(this);
         m_tracer.callBackOnLightAdd(onLightAdd);
     }
     protected abstract void init();

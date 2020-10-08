@@ -34,6 +34,7 @@ public class RayTracer : MonoBehaviour
 
     public void register(RayTracedLight light)
     {
+        Debug.Log("Registered light: " + light);
         if(m_lights == null)
         {
             m_lights = new List<RayTracedLight>();
@@ -61,6 +62,7 @@ public class RayTracer : MonoBehaviour
         {
             for (int i = 0; i < m_lights.Count; ++i)
             {
+                Debug.Log("light " + m_lights[i]);
                 collider.onLightAdd(m_lights[i]);
             }
         }

@@ -17,7 +17,6 @@ public class RayCircleColliderShaded : RayCollider
 
     protected override void init()
     {
-        m_tracer.register(this);
         SpriteRenderer renderer = this.GetComponent<SpriteRenderer>();
         m_sprite = renderer.sprite;
         m_rayTracingOutlineMaterial = renderer.material; // Create instance of material
@@ -137,6 +136,7 @@ public class RayCircleColliderShaded : RayCollider
 
     public override void onLightChange()
     {
+        Debug.Log("light has changed");
         // Reset light map
         for (int y = 0; y < m_lightMapTexture.height; ++y)
             for (int x = 0; x < m_lightMapTexture.width; ++x)

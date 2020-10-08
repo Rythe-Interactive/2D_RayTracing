@@ -16,6 +16,7 @@ public abstract class RayTracedLight : MonoBehaviour
     protected SpriteRenderer m_spriteRend;
     protected Color m_previousColor;
     protected bool m_hasChanged = false;
+    protected bool m_startingUp = true;
 
     protected UnityEvent m_onLightChange;
 
@@ -23,7 +24,6 @@ public abstract class RayTracedLight : MonoBehaviour
     void Start()
     {
         if(m_onLightChange == null) m_onLightChange = new UnityEvent();
-        m_tracer.register(this);
         m_currentRayCount = m_rayCount;
         m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
         if (m_useSpriteRendColor)
@@ -33,6 +33,8 @@ public abstract class RayTracedLight : MonoBehaviour
         m_rays = new List<Ray>();
         m_previousColor = new Color(m_color.r, m_color.g, m_color.b, m_color.a);
         init();
+        m_tracer.register(this);
+        m_startingUp = false;
     }
 
     // Update is called once per frame
@@ -62,6 +64,7 @@ public abstract class RayTracedLight : MonoBehaviour
 
     public void OnEnable()
     {
+        if (m_startingUp) return;
         if (m_rays != null)
         {
             for (int i = 0; i < m_rays.Count; ++i)
