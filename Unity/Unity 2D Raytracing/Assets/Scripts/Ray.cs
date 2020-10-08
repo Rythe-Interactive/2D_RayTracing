@@ -15,6 +15,7 @@ public class Ray
     private RayCollider m_origin;
 
     private const int stdDepth = 2;
+    private Ray m_parent = null;
 
     public Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
     {
@@ -120,14 +121,23 @@ public class Ray
         {
             m_bounce = new Ray(hit.point, reflectDir, m_color * hit.color, m_maxDepth - 1);
             m_bounceInfo = hit;
-            
+
         }
         else
         {
             Color cl = m_color * hit.color;
             m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
         }
+        m_bounce.m_parent = this;
         return m_bounce;
+    }
+
+    public Ray parent
+    {
+        get
+        {
+            return m_parent;
+        }
     }
 
     public Ray getBounce()

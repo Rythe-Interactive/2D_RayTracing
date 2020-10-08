@@ -22,7 +22,7 @@ public abstract class RayTracedLight : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        m_onLightChange = new UnityEvent();
+        if(m_onLightChange == null) m_onLightChange = new UnityEvent();
         m_tracer.register(this);
         m_currentRayCount = m_rayCount;
         m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
@@ -82,6 +82,7 @@ public abstract class RayTracedLight : MonoBehaviour
 
     public void callBackOnChange(UnityAction action)
     {
+        if (m_onLightChange == null) m_onLightChange = new UnityEvent();
         m_onLightChange.AddListener(action);
     }
 

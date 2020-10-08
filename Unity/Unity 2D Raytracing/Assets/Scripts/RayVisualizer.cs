@@ -28,8 +28,8 @@ public class RayVisualizer : MonoBehaviour
                 {
                     direction = m_rays[i].getBounce().position - m_rays[i].position;
                 }
-                else direction = m_rays[i].direction * 4;
-                Debug.DrawRay(m_rays[i].position, direction, m_rays[i].color);
+                else direction = m_rays[i].direction.normalized * 4;
+                Debug.DrawRay(m_rays[i].position, direction, m_rays[i].color, 0);
             }
         }
         m_rayCount = m_rays.Count;

@@ -11,7 +11,9 @@ public class RayCircleColliderShaded : RayCollider
     private List<Ray> m_rays;
     [SerializeField] private List<RayHit> m_hits;
     [SerializeField] private Texture2D m_lightMapTexture;
+    [SerializeField] private bool m_useExperimentalLightMapReset = false;
     private Material m_rayTracingOutlineMaterial;
+    private Vector2 m_position;
 
     protected override void init()
     {
@@ -29,10 +31,20 @@ public class RayCircleColliderShaded : RayCollider
             {
                 m_lightMapTexture.SetPixel(x, y, Color.clear);
             }
+        m_position = this.transform.position;
         m_lightMapTexture.Apply();
         m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
         applyHits();
+    }
+
+    protected override void update()
+    {
+        if(m_useExperimentalLightMapReset && m_position != new Vector2(this.transform.position.x, this.transform.position.y))
+        {
+            m_position = this.transform.position;
+            onLightChange();
+        }
     }
 
     public void OnDestroy()
@@ -83,6 +95,15 @@ public class RayCircleColliderShaded : RayCollider
     public override void applyHits()
     {
         m_lightMapTexture.Apply();
+        if (!m_useExperimentalLightMapReset)
+        {
+            // Reset light map
+            for (int y = 0; y < m_lightMapTexture.height; ++y)
+                for (int x = 0; x < m_lightMapTexture.width; ++x)
+                {
+                    m_lightMapTexture.SetPixel(x, y, Color.clear);
+                }
+        }
     }
 
     public override void clearHits()
@@ -116,6 +137,7 @@ public class RayCircleColliderShaded : RayCollider
 
     public override void onLightChange()
     {
+        Debug.Log("light changed");
         // Reset light map
         for (int y = 0; y < m_lightMapTexture.height; ++y)
             for (int x = 0; x < m_lightMapTexture.width; ++x)
@@ -123,6 +145,11 @@ public class RayCircleColliderShaded : RayCollider
                 m_lightMapTexture.SetPixel(x, y, Color.clear);
             }
         m_lightMapTexture.Apply();
+    }
+
+    public override void onLightAdd(RayTracedLight light)
+    {
+        if(m_rayTracingOutlineMaterial) light.callBackOnChange(onLightChange);
     }
 
     public Vector2 center

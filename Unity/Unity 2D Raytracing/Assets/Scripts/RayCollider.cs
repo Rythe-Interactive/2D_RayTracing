@@ -11,6 +11,11 @@ public abstract class RayCollider : MonoBehaviour
         init();
     }
     protected abstract void init();
+    public void Update()
+    {
+        update();
+    }
+    protected virtual void update() { }
     public abstract bool collide(Ray ray, out RayHit hit);
     public abstract void registerHit(RayHit hit);
     public abstract void clearHits();
