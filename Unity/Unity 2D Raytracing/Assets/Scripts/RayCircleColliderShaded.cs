@@ -137,7 +137,6 @@ public class RayCircleColliderShaded : RayCollider
 
     public override void onLightChange()
     {
-        Debug.Log("light changed " + this.gameObject);
         // Reset light map
         for (int y = 0; y < m_lightMapTexture.height; ++y)
             for (int x = 0; x < m_lightMapTexture.width; ++x)
