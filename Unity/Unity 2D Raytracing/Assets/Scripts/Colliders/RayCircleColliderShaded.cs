@@ -31,9 +31,13 @@ public class RayCircleColliderShaded : RayCollider
                 m_lightMapTexture.SetPixel(x, y, Color.clear);
             }
         m_position = this.transform.position;
-        m_lightMapTexture.Apply();
+
+        m_lightMapTexture.filterMode = FilterMode.Trilinear;
+        m_lightMapTexture.anisoLevel = 4;
+        m_lightMapTexture.Apply(true);
         m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
+        m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 2);
         applyHits();
     }
 
@@ -93,7 +97,10 @@ public class RayCircleColliderShaded : RayCollider
 
     public override void applyHits()
     {
-        m_lightMapTexture.Apply();
+        m_lightMapTexture.filterMode = FilterMode.Trilinear;
+        m_lightMapTexture.anisoLevel = 4;
+        m_lightMapTexture.Apply(true);
+
         if (!m_useExperimentalLightMapReset)
         {
             // Reset light map

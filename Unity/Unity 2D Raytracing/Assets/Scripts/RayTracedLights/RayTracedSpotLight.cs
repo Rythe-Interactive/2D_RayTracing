@@ -15,7 +15,7 @@ public class RayTracedSpotLight : RayTracedLight
         {
             float angle = m_angle / (float)m_rayCount * (float)i;
             Vector2 direction = this.transform.rotation * Quaternion.Euler(0, 0, (-m_angle / 2) + angle) * new Vector3(1, 0, 0);
-            Ray ray = new Ray(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>());
+            Ray ray = Ray.requestRay(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>()); 
             m_rays.Add(ray);
             m_tracer.register(ray);
         }
@@ -26,6 +26,7 @@ public class RayTracedSpotLight : RayTracedLight
         // If rayCount changed
         if (m_currentRayCount != m_rayCount)
         {
+            Debug.Log("Ray count has changed");
             m_hasChanged = true;
             if (m_useSpriteRendColor) m_color = m_spriteRend.color;
             m_position = this.transform.position;
@@ -33,33 +34,30 @@ public class RayTracedSpotLight : RayTracedLight
             for (int i = 0; i < Mathf.Max(m_currentRayCount, m_rayCount); ++i)
             {
                 float angle = m_angle / (float)m_rayCount * (float)i;
-
                 Vector2 direction = this.transform.rotation * Quaternion.Euler(0, 0, (-m_angle/2)+angle) * new Vector3(1, 0, 0);
-                Ray ray;
 
                 if (i >= m_currentRayCount)
                 {
-                    // RayCount has increased and the ray should be added to the list
-                    if (i >= m_rays.Count)
-                    {
-                        // The list is not yet big enough, thus increase the size
-                        ray = new Ray(m_position, direction, this.gameObject.GetComponent<RayCollider>());
-                        m_rays.Add(ray);
-                    }
-                    else
-                    {
-                        // The list still has unused elements
-                        m_rays[i].reUse(m_position.x, m_position.y, direction.x, direction.y, this.GetComponent<RayCollider>());
-                        ray = m_rays[i];
-                    }
+                    Debug.Log("Rays have been added, recycled " + Ray.recycledRayCount());
+                    //Ray count has increased
+                    Ray ray = Ray.requestRay(m_position, direction, this.GetComponent<RayCollider>());
                     m_tracer.register(ray);
+                    m_rays.Add(ray);
+                    Debug.Log("Recycled rays after getting rays: " + Ray.recycledRayCount());
                 }
                 else if (i >= m_rayCount)
                 {
+                    Debug.Log("Rays have been removed, recycled: " + Ray.recycledRayCount());
                     // RayCount has decreased
-                    // Rays will not be removed from the list, but will be reset completely
-                    m_rays[i].reset();
-                    m_tracer.unRegister(m_rays[i]);
+                    for (int r = m_currentRayCount - 1; r >= m_rayCount; --r) // Range that needs to be deleted
+                    {
+                        Ray ray = m_rays[r];
+                        m_rays.RemoveAt(r);
+                        m_tracer.unRegister(ray);
+                        Ray.recycleRay(ray);
+                    }
+                    Debug.Log("Recycled rays after removing rays: " + Ray.recycledRayCount());
+                    break;
                 }
                 else
                 {

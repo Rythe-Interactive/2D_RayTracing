@@ -17,7 +17,47 @@ public class Ray
     private const int stdDepth = 2;
     private Ray m_parent = null;
 
-    public Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
+    static List<Ray> m_recycledRays;
+
+    public static Ray requestRay(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
+    {
+        Ray ray;
+        if (m_recycledRays != null && m_recycledRays.Count != 0)
+        {
+            int last = m_recycledRays.Count - 1;
+            ray = m_recycledRays[last];
+            m_recycledRays.RemoveAt(last);
+        }
+        else ray = new Ray(position, direction, origin, color, maxDepth);
+
+        RayVisualizer.instance.register(ray);
+        return ray; 
+    }
+
+    public static Ray requestRay(Vector2 position, Vector2 direction, Color color, int maxDepth = stdDepth)
+    {
+        return requestRay(position, direction, null, color, maxDepth);
+    }
+
+    public static Ray requestRay(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = stdDepth)
+    {
+        return requestRay(position, direction, origin, new Color(1, 1, 1), maxDepth);
+    }
+
+    public static void recycleRay(Ray ray)
+    {
+        if (m_recycledRays == null) m_recycledRays = new List<Ray>();
+        RayVisualizer.instance.unRegister(ray);
+        m_recycledRays.Add(ray);
+    }
+
+    public static int recycledRayCount()
+    {
+        if (m_recycledRays == null) return 0;
+        return m_recycledRays.Count;
+    }
+
+    private Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
     {
         m_position = position;
         m_direction = direction;
@@ -28,13 +68,12 @@ public class Ray
         m_hasBounce = false;
         m_bounce = null;
         m_bounceInfo = new RayHit(this);
-        RayVisualizer.instance.register(this);
     }
 
-    public Ray(Vector2 position, Vector2 direction, Color color, int maxDepth = stdDepth) : 
+    private Ray(Vector2 position, Vector2 direction, Color color, int maxDepth = stdDepth) : 
         this(position, direction, null, color, maxDepth) { }
 
-    public Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = stdDepth) :
+    private Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = stdDepth) :
         this(position, direction, origin, new Color(1, 1, 1), maxDepth) { }
 
     ~Ray()

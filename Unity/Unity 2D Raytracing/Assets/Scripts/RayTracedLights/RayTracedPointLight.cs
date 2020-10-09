@@ -11,7 +11,7 @@ public class RayTracedPointLight : RayTracedLight
         {
             float angle = 360 / (float)m_rayCount * (float)i;
             Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
-            Ray ray = new Ray(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>());
+            Ray ray = Ray.requestRay(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>());
             m_rays.Add(ray);
             m_tracer.register(ray);
         }
@@ -29,31 +29,25 @@ public class RayTracedPointLight : RayTracedLight
             {
                 float angle = 360 / (float)base.m_rayCount * (float)i;
                 Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
-                Ray ray;
 
                 if (i >= m_currentRayCount)
                 {
-                    // RayCount has increased and the ray should be added to the list
-                    if (i >= m_rays.Count)
-                    {
-                        // The list is not yet big enough, thus increase the size
-                        ray = new Ray(m_position, direction, this.gameObject.GetComponent<RayCollider>());
-                        m_rays.Add(ray);
-                    }
-                    else
-                    {
-                        // The list still has unused elements
-                        m_rays[i].reUse(m_position.x, m_position.y, direction.x, direction.y, this.GetComponent<RayCollider>());
-                        ray = m_rays[i];
-                    }
+                    //Raycount has increased
+                    Ray ray = Ray.requestRay(m_position, direction, this.GetComponent<RayCollider>());
                     m_tracer.register(ray);
+                    m_rays.Add(ray);
                 }
                 else if (i >= m_rayCount)
                 {
                     // RayCount has decreased
-                    // Rays will not be removed from the list, but will be reset completely
-                    m_rays[i].reset();
-                    m_tracer.unRegister(m_rays[i]);
+                    for(int r = m_currentRayCount - 1; r >= m_rayCount; --r) // Range that needs to be deleted
+                    {
+                        Ray ray = m_rays[r];
+                        m_rays.RemoveAt(r);
+                        m_tracer.unRegister(m_rays[i]);
+                        Ray.recycleRay(ray);
+                    }
+                    break;
                 }
                 else
                 {

@@ -10,6 +10,9 @@ public class UnityEventRayTracedLight : UnityEvent<RayTracedLight>
 
 public class RayTracer : MonoBehaviour
 {
+    [SerializeField] int m_colliderCount = 0;
+    [SerializeField] int m_rayCount = 0;
+    [SerializeField] int m_lightCount = 0;
     private List<RayCollider> m_colliders;
     private List<RayHit> m_rayHits;
     private List<Ray> m_rays;
@@ -25,11 +28,13 @@ public class RayTracer : MonoBehaviour
     {
         if(m_rays == null) m_rays = new List<Ray>();
         m_rays.Add(ray);
+        ++m_rayCount;
     }
 
     public void unRegister(Ray ray)
     {
         m_rays.Remove(ray);
+        --m_rayCount;
     }
 
     public void register(RayTracedLight light)
@@ -38,7 +43,7 @@ public class RayTracer : MonoBehaviour
         {
             m_lights = new List<RayTracedLight>();
         }
-        m_lights.Add(light);
+        m_lights.Add(light);++m_lightCount;
         m_onLightAdd?.Invoke(light);
     }
 
@@ -46,6 +51,7 @@ public class RayTracer : MonoBehaviour
     {
         m_lights.Remove(light);
         m_onLightRemove?.Invoke(light);
+        --m_lightCount;
     }
 
     public void register(RayCollider collider)
@@ -57,6 +63,7 @@ public class RayTracer : MonoBehaviour
             m_onLightRemove = new UnityEventRayTracedLight();
         }
         m_colliders.Add(collider);
+        ++m_colliderCount;
         if (m_lights != null)
         {
             for (int i = 0; i < m_lights.Count; ++i)
@@ -70,6 +77,7 @@ public class RayTracer : MonoBehaviour
     {
         if (m_colliders == null) return;
         m_colliders.Remove(collider);
+        --m_colliderCount;
     }
 
     public void callBackOnLightAdd(UnityAction<RayTracedLight> action)
@@ -127,6 +135,10 @@ public class RayTracer : MonoBehaviour
                 m_colliders[i].applyHits();
             }
         }
+    }
+
+    private void updateSerializeFields()
+    {
     }
 
     public RayHit collide(Ray ray)
