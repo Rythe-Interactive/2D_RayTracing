@@ -27,6 +27,7 @@ public class Ray
             int last = m_recycledRays.Count - 1;
             ray = m_recycledRays[last];
             m_recycledRays.RemoveAt(last);
+            ray.reUse(position.x, position.y, direction.x, direction.y, origin, color.r, color.g, color.b, color.a, maxDepth);
         }
         else ray = new Ray(position, direction, origin, color, maxDepth);
 

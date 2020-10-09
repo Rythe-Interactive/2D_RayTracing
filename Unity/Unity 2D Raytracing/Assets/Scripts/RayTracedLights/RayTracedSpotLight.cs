@@ -26,7 +26,6 @@ public class RayTracedSpotLight : RayTracedLight
         // If rayCount changed
         if (m_currentRayCount != m_rayCount)
         {
-            Debug.Log("Ray count has changed");
             m_hasChanged = true;
             if (m_useSpriteRendColor) m_color = m_spriteRend.color;
             m_position = this.transform.position;
@@ -38,16 +37,13 @@ public class RayTracedSpotLight : RayTracedLight
 
                 if (i >= m_currentRayCount)
                 {
-                    Debug.Log("Rays have been added, recycled " + Ray.recycledRayCount());
                     //Ray count has increased
                     Ray ray = Ray.requestRay(m_position, direction, this.GetComponent<RayCollider>());
                     m_tracer.register(ray);
                     m_rays.Add(ray);
-                    Debug.Log("Recycled rays after getting rays: " + Ray.recycledRayCount());
                 }
                 else if (i >= m_rayCount)
                 {
-                    Debug.Log("Rays have been removed, recycled: " + Ray.recycledRayCount());
                     // RayCount has decreased
                     for (int r = m_currentRayCount - 1; r >= m_rayCount; --r) // Range that needs to be deleted
                     {
@@ -56,7 +52,6 @@ public class RayTracedSpotLight : RayTracedLight
                         m_tracer.unRegister(ray);
                         Ray.recycleRay(ray);
                     }
-                    Debug.Log("Recycled rays after removing rays: " + Ray.recycledRayCount());
                     break;
                 }
                 else
@@ -88,7 +83,7 @@ public class RayTracedSpotLight : RayTracedLight
                 m_rotation = rot;
                 for(int i = 0; i < m_rayCount; ++i)
                 {
-                    float angle = m_angle / (float)base.m_rayCount * (float)i;
+                    float angle = m_angle / (float)m_rayCount * (float)i;
 
                     Vector2 direction = this.transform.rotation * Quaternion.Euler(0, 0, (-m_angle / 2) + angle) * new Vector3(1, 0, 0);
                     m_rays[i].setDirection(direction.x, direction.y);
