@@ -159,7 +159,7 @@ public class Ray
         m_hasBounce = true;
         if (m_bounce == null)
         {
-            m_bounce = new Ray(hit.point, reflectDir, m_color * hit.color, m_maxDepth - 1);
+            m_bounce = requestRay(hit.point, reflectDir, m_color * hit.color, m_maxDepth - 1);
             m_bounceInfo = hit;
 
         }
