@@ -96,10 +96,18 @@ public class RayCircleColliderShaded : RayCollider
         m_hits.Add(hit);
         //m_lightMapTexture.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
 
-        Vector2 hitToCenter = new Vector2(m_lightMapTexture.width / 2, m_lightMapTexture.height / 2) - hit.pixel;
-        for(int i = 0; i < hitToCenter.magnitude; ++i)
+        float distToRay = (hit.point - hit.ray.position).magnitude;
+        float strength = (5 / distToRay) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction));
+        
+        for(int i = 0; i < 500; ++i)
         {
-            m_lightMapTexture.SetPixel((int)(hit.pixel.x + hitToCenter.normalized.x * i), (int)(hit.pixel.y + hitToCenter.normalized.y * i), hit.ray.color);
+            Vector2 pxl = hit.pixel + hit.ray.direction.normalized * i;
+            if (pxl.x >= 0 && pxl.x < m_lightMapTexture.width &&
+                pxl.y >= 0 && pxl.y < m_lightMapTexture.height)
+            {
+                float strengthForPixel = strength - (hit.pixel - pxl).magnitude / 50;
+                m_lightMapTexture.SetPixel((int)pxl.x, (int)pxl.y, hit.ray.color * strengthForPixel);
+            }
         }
     }
 

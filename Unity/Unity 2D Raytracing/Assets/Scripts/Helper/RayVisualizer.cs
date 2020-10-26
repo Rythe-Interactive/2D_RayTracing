@@ -42,6 +42,11 @@ public class RayVisualizer : MonoBehaviour
 
     public void unRegister(Ray ray)
     {
+        List<Ray> children = ray.getBounces();
+        for(int i = 0; i < children.Count; ++i)
+        {
+            m_rays.Remove(children[i]);
+        }
         m_rays.Remove(ray);
     }
 
