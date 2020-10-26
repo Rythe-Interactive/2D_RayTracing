@@ -37,7 +37,7 @@ public class RayCircleColliderShaded : RayCollider
         m_lightMapTexture.Apply(true);
         m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
-        m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 2);
+        m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 5);
         applyHits();
 
         m_precisionRays = new List<Ray>();
@@ -45,10 +45,11 @@ public class RayCircleColliderShaded : RayCollider
 
     protected override void update()
     {
-        if(m_useExperimentalLightMapReset && m_position != new Vector2(this.transform.position.x, this.transform.position.y))
+        if(m_position != new Vector2(this.transform.position.x, this.transform.position.y))
         {
             m_position = this.transform.position;
             onLightChange();
+            m_changed = true;
         }
     }
 
@@ -159,6 +160,17 @@ public class RayCircleColliderShaded : RayCollider
 
     public override void onLightChange()
     {
+        // Reset light map
+        for (int y = 0; y < m_lightMapTexture.height; ++y)
+            for (int x = 0; x < m_lightMapTexture.width; ++x)
+            {
+                m_lightMapTexture.SetPixel(x, y, Color.clear);
+            }
+        m_lightMapTexture.Apply();
+    }
+    public override void onColliderChange()
+    {
+        Debug.Log("Collider changed for: " + this);
         // Reset light map
         for (int y = 0; y < m_lightMapTexture.height; ++y)
             for (int x = 0; x < m_lightMapTexture.width; ++x)

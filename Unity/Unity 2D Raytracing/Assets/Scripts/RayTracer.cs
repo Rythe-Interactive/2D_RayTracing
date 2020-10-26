@@ -43,7 +43,8 @@ public class RayTracer : MonoBehaviour
         {
             m_lights = new List<RayTracedLight>();
         }
-        m_lights.Add(light);++m_lightCount;
+        m_lights.Add(light);
+        ++m_lightCount;
         m_onLightAdd?.Invoke(light);
     }
 
@@ -62,6 +63,11 @@ public class RayTracer : MonoBehaviour
             m_onLightAdd = new UnityEventRayTracedLight();
             m_onLightRemove = new UnityEventRayTracedLight();
         }
+        for(int i = 0; i < m_colliders.Count; ++i)
+        {
+            collider.onColliderAdd(m_colliders[i]);
+            m_colliders[i].onColliderAdd(collider);
+        }
         m_colliders.Add(collider);
         ++m_colliderCount;
         if (m_lights != null)
@@ -77,6 +83,11 @@ public class RayTracer : MonoBehaviour
     {
         if (m_colliders == null) return;
         m_colliders.Remove(collider);
+        for (int i = 0; i < m_colliders.Count; ++i)
+        {
+            collider.onColliderRemove(m_colliders[i]);
+            m_colliders[i].onColliderRemove(collider);
+        }
         --m_colliderCount;
     }
 

@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class RayCollider : MonoBehaviour
 {
     [SerializeField] protected RayTracer m_tracer;
+    [HideInInspector] [SerializeField] protected UnityEvent m_oncolliderChange;
+    [HideInInspector] [SerializeField] protected bool m_changed = false;
     public void Start()
     {
         init();
@@ -14,7 +17,12 @@ public abstract class RayCollider : MonoBehaviour
     protected abstract void init();
     public void Update()
     {
+        m_changed = false;
         update();
+        if(m_changed)
+        {
+            m_oncolliderChange?.Invoke();
+        }
     }
     protected virtual void update() { }
     public abstract bool collide(Ray ray, out RayHit hit);
@@ -29,5 +37,24 @@ public abstract class RayCollider : MonoBehaviour
     public virtual void onLightRemove(RayTracedLight light)
     {
         light.removeCallBackOnChange(onLightChange);
+    }
+    public virtual void onColliderChange() { }
+    public virtual void onColliderAdd(RayCollider collider)
+    {
+        Debug.Log("Collider " + collider + " added on: " + this);
+        if(m_oncolliderChange == null) m_oncolliderChange = new UnityEvent();
+        collider.callBackOnChange(onColliderChange);
+    }
+    public virtual void onColliderRemove(RayCollider collider)
+    {
+        collider.removeCallBackOnChange(onColliderChange);
+    }
+    public void callBackOnChange(UnityAction action)
+    {
+        m_oncolliderChange.AddListener(action);
+    }
+    public void removeCallBackOnChange(UnityAction action)
+    {
+        m_oncolliderChange.RemoveListener(action);
     }
 }
