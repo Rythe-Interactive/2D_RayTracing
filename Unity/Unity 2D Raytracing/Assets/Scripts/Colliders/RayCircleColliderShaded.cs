@@ -8,12 +8,12 @@ public class RayCircleColliderShaded : RayCollider
     [SerializeField] private float m_radius;
     [SerializeField] private readonly Vector2 m_offset;
     private Sprite m_sprite;
-    private List<Ray> m_rays;
     [SerializeField] private List<RayHit> m_hits;
     [SerializeField] private Texture2D m_lightMapTexture;
     [SerializeField] private bool m_useExperimentalLightMapReset = false;
     private Material m_rayTracingOutlineMaterial;
     private Vector2 m_position;
+    List<Ray> m_precisionRays;
 
     protected override void init()
     {
@@ -39,6 +39,8 @@ public class RayCircleColliderShaded : RayCollider
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
         m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 2);
         applyHits();
+
+        m_precisionRays = new List<Ray>();
     }
 
     protected override void update()
@@ -92,7 +94,13 @@ public class RayCircleColliderShaded : RayCollider
     public override void registerHit(RayHit hit)
     {
         m_hits.Add(hit);
-        m_lightMapTexture.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
+        //m_lightMapTexture.SetPixel(hit.pixel.x, hit.pixel.y, hit.ray.color);
+
+        Vector2 hitToCenter = new Vector2(m_lightMapTexture.width / 2, m_lightMapTexture.height / 2) - hit.pixel;
+        for(int i = 0; i < hitToCenter.magnitude; ++i)
+        {
+            m_lightMapTexture.SetPixel((int)(hit.pixel.x + hitToCenter.normalized.x * i), (int)(hit.pixel.y + hitToCenter.normalized.y * i), hit.ray.color);
+        }
     }
 
     public override void applyHits()

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class RayTracedPointLight : RayTracedLight
 {
+    List<Ray> m_precisionRays = new List<Ray>();
+
     // Start is called before the first frame update
     protected override void init()
     {
@@ -15,6 +17,7 @@ public class RayTracedPointLight : RayTracedLight
             m_rays.Add(ray);
             m_tracer.register(ray);
         }
+        m_precisionRays = new List<Ray>();
     }
 
     protected override void update()
