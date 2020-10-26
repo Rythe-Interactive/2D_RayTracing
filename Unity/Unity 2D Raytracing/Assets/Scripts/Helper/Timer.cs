@@ -17,8 +17,10 @@ public class Timer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+#if (UNITY_EDITOR)
         m_time += Time.deltaTime;
         if (m_time >= m_pauseAtTime && m_pauseAtTime > 0) Debug.Break();
         if (m_time >= m_stopAtTime && m_stopAtTime > 0) UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }

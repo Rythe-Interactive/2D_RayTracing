@@ -123,6 +123,7 @@ public class RayCircleCollider : RayCollider
     }
 }
 
+#if (UNITY_EDITOR)
 [CustomEditor(typeof(RayCircleCollider))]
 public class RayCircleColliderEditor : Editor
 {
@@ -135,3 +136,4 @@ public class RayCircleColliderEditor : Editor
         Handles.DrawWireDisc(m_collider.center, Vector3.forward, m_collider.radius);
     }
 }
+#endif

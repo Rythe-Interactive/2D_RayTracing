@@ -41,7 +41,6 @@ public abstract class RayCollider : MonoBehaviour
     public virtual void onColliderChange() { }
     public virtual void onColliderAdd(RayCollider collider)
     {
-        Debug.Log("Collider " + collider + " added on: " + this);
         if(m_oncolliderChange == null) m_oncolliderChange = new UnityEvent();
         collider.callBackOnChange(onColliderChange);
     }

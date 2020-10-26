@@ -146,6 +146,7 @@ public class RayTracedSpotLight : RayTracedLight
     }
 }
 
+#if (UNITY_EDITOR)
 [CustomEditor(typeof(RayTracedSpotLight))]
 public class RayTracedSpotLightEditor : Editor
 {
@@ -160,3 +161,4 @@ public class RayTracedSpotLightEditor : Editor
         Handles.DrawSolidArc(m_light.transform.position, new Vector3(0, 0, 1), m_light.directionOfStart, m_light.angle, 0.3f);
     }
 }
+#endif
