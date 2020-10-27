@@ -13,7 +13,7 @@ public class RayTracedPointLight : RayTracedLight
         {
             float angle = 360 / (float)m_rayCount * (float)i;
             Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
-            Ray ray = Ray.requestRay(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>());
+            Ray ray = Ray.requestRay(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>(), m_color);
             m_rays.Add(ray);
             m_tracer.register(ray);
         }

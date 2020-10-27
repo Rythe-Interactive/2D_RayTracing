@@ -99,15 +99,28 @@ public class RayCircleColliderShaded : RayCollider
 
         float distToRay = (hit.point - hit.ray.position).magnitude;
         float strength = (5 / distToRay) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction));
-        
-        for(int i = 0; i < 500; ++i)
+        if (strength <= 0)
+        {
+            Debug.Log("Skipping hits");
+            return;
+        }
+        //float maxDist = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width, 2) + Mathf.Pow(m_lightMapTexture.height, 2));
+
+        float maxDistWithLight = strength * m_sprite.pixelsPerUnit;
+        int loops = Mathf.FloorToInt(maxDistWithLight) + 1;
+        for(int i = 0; i < loops; ++i)
         {
             Vector2 pxl = hit.pixel + hit.ray.direction.normalized * i;
             if (pxl.x >= 0 && pxl.x < m_lightMapTexture.width &&
                 pxl.y >= 0 && pxl.y < m_lightMapTexture.height)
             {
-                float strengthForPixel = strength - (hit.pixel - pxl).magnitude / 50;
-                m_lightMapTexture.SetPixel((int)pxl.x, (int)pxl.y, hit.ray.color * strengthForPixel);
+                float strengthForPixel = strength - (hit.pixel - pxl).magnitude / m_sprite.pixelsPerUnit;
+                if(strengthForPixel <= 0)
+                {
+                    // From here on out the pixels will not receive any light
+                    break; 
+                }
+                m_lightMapTexture.SetPixel((int)pxl.x, (int)pxl.y, m_lightMapTexture.GetPixel((int)pxl.x, (int)pxl.y) + hit.ray.color * strengthForPixel);
             }
         }
     }
