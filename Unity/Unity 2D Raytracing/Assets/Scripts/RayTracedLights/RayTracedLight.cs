@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+public class UnityEventRayTracerLight : UnityEvent<RayTracedLight>
+{
+
+}
+
+
 public abstract class RayTracedLight : MonoBehaviour
 {
     [SerializeField] protected int m_rayCount;
@@ -18,12 +24,12 @@ public abstract class RayTracedLight : MonoBehaviour
     protected bool m_hasChanged = false;
     protected bool m_startingUp = true;
 
-    protected UnityEvent m_onLightChange;
+    protected UnityEventRayTracerLight m_onLightChange;
 
     // Start is called before the first frame update
     void Start()
     {
-        if(m_onLightChange == null) m_onLightChange = new UnityEvent();
+        if(m_onLightChange == null) m_onLightChange = new UnityEventRayTracerLight();
         m_currentRayCount = m_rayCount;
         m_spriteRend = this.gameObject.GetComponent<SpriteRenderer>();
         if (m_useSpriteRendColor)
@@ -42,7 +48,7 @@ public abstract class RayTracedLight : MonoBehaviour
     {
         m_hasChanged = false;
         update();
-        if (m_hasChanged) m_onLightChange.Invoke();
+        if (m_hasChanged) m_onLightChange.Invoke(this);
     }
 
     public void OnDestroy()
@@ -85,15 +91,15 @@ public abstract class RayTracedLight : MonoBehaviour
         }
     }
 
-    public void callBackOnChange(UnityAction action)
+    public void callBackOnChange(UnityAction<RayTracedLight> action)
     {
-        if (m_onLightChange == null) m_onLightChange = new UnityEvent();
+        if (m_onLightChange == null) m_onLightChange = new UnityEventRayTracerLight();
         m_onLightChange.AddListener(action);
     }
 
-    public void removeCallBackOnChange(UnityAction action)
+    public void removeCallBackOnChange(UnityAction<RayTracedLight> action)
     {
-        m_onLightChange.RemoveListener(action);
+        m_onLightChange?.RemoveListener(action);
     }
 
     abstract protected void init();

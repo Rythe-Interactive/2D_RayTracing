@@ -48,7 +48,7 @@ public class RayCircleColliderShaded : RayCollider
         if(m_position != new Vector2(this.transform.position.x, this.transform.position.y))
         {
             m_position = this.transform.position;
-            onLightChange();
+            //onLightChange();
             m_changed = true;
         }
     }
@@ -131,15 +131,15 @@ public class RayCircleColliderShaded : RayCollider
         m_lightMapTexture.anisoLevel = 4;
         m_lightMapTexture.Apply(true);
 
-        if (!m_useExperimentalLightMapReset)
-        {
+        //if (!m_useExperimentalLightMapReset)
+        //{
             // Reset light map
             for (int y = 0; y < m_lightMapTexture.height; ++y)
                 for (int x = 0; x < m_lightMapTexture.width; ++x)
                 {
                     m_lightMapTexture.SetPixel(x, y, Color.clear);
                 }
-        }
+        //}
     }
 
     public override void clearHits()
@@ -171,31 +171,31 @@ public class RayCircleColliderShaded : RayCollider
         return texSpaceCoord;
     }
 
-    public override void onLightChange()
-    {
-        // Reset light map
-        for (int y = 0; y < m_lightMapTexture.height; ++y)
-            for (int x = 0; x < m_lightMapTexture.width; ++x)
-            {
-                m_lightMapTexture.SetPixel(x, y, Color.clear);
-            }
-        m_lightMapTexture.Apply();
-    }
-    public override void onColliderChange()
-    {
-        // Reset light map
-        for (int y = 0; y < m_lightMapTexture.height; ++y)
-            for (int x = 0; x < m_lightMapTexture.width; ++x)
-            {
-                m_lightMapTexture.SetPixel(x, y, Color.clear);
-            }
-        m_lightMapTexture.Apply();
-    }
+    //public override void onLightChange()
+    //{
+    //    // Reset light map
+    //    for (int y = 0; y < m_lightMapTexture.height; ++y)
+    //        for (int x = 0; x < m_lightMapTexture.width; ++x)
+    //        {
+    //            m_lightMapTexture.SetPixel(x, y, Color.clear);
+    //        }
+    //    m_lightMapTexture.Apply();
+    //}
+    //public override void onColliderChange()
+    //{
+    //    // Reset light map
+    //    for (int y = 0; y < m_lightMapTexture.height; ++y)
+    //        for (int x = 0; x < m_lightMapTexture.width; ++x)
+    //        {
+    //            m_lightMapTexture.SetPixel(x, y, Color.clear);
+    //        }
+    //    m_lightMapTexture.Apply();
+    //}
 
-    public override void onLightAdd(RayTracedLight light)
-    {
-        if(m_rayTracingOutlineMaterial) light.callBackOnChange(onLightChange);
-    }
+    //public override void onLightAdd(RayTracedLight light)
+    //{
+    //    if(m_rayTracingOutlineMaterial) light.callBackOnChange(onLightChange);
+    //}
 
     public Vector2 center
     {

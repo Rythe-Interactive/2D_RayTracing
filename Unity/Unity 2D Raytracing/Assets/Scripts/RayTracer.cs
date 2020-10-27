@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class UnityEventRayTracedLight : UnityEvent<RayTracedLight>
-{
-
-}
-
 public class RayTracer : MonoBehaviour
 {
     [SerializeField] int m_colliderCount = 0;
@@ -17,8 +12,10 @@ public class RayTracer : MonoBehaviour
     private List<RayHit> m_rayHits;
     private List<Ray> m_rays;
     private List<RayTracedLight> m_lights;
-    private UnityEventRayTracedLight m_onLightAdd;
-    private UnityEventRayTracedLight m_onLightRemove;
+    //private UnityEventRayTracedLight m_onLightAdd;
+    //private UnityEventRayTracedLight m_onLightRemove;
+
+    private bool m_reTrace = true;
 
     public void Awake()
     {
@@ -45,13 +42,15 @@ public class RayTracer : MonoBehaviour
         }
         m_lights.Add(light);
         ++m_lightCount;
-        m_onLightAdd?.Invoke(light);
+        light.callBackOnChange(onLightChange);
+        //m_onLightAdd?.Invoke(light);
     }
 
     public void unRegister(RayTracedLight light)
     {
+        light.removeCallBackOnChange(onLightChange);
         m_lights.Remove(light);
-        m_onLightRemove?.Invoke(light);
+        //m_onLightRemove?.Invoke(light);
         --m_lightCount;
     }
 
@@ -60,50 +59,53 @@ public class RayTracer : MonoBehaviour
         if (m_colliders == null)
         {
             m_colliders = new List<RayCollider>();
-            m_onLightAdd = new UnityEventRayTracedLight();
-            m_onLightRemove = new UnityEventRayTracedLight();
+            //m_onLightAdd = new UnityEventRayTracedLight();
+            //m_onLightRemove = new UnityEventRayTracedLight();
         }
-        for(int i = 0; i < m_colliders.Count; ++i)
-        {
-            collider.onColliderAdd(m_colliders[i]);
-            m_colliders[i].onColliderAdd(collider);
-        }
+        //for(int i = 0; i < m_colliders.Count; ++i)
+        //{
+        //    collider.onColliderAdd(m_colliders[i]);
+        //    m_colliders[i].onColliderAdd(collider);
+        //}
+        collider.callBackOnChange(onColliderChange);
         m_colliders.Add(collider);
         ++m_colliderCount;
-        if (m_lights != null)
-        {
-            for (int i = 0; i < m_lights.Count; ++i)
-            {
-                collider.onLightAdd(m_lights[i]);
-            }
-        }
+        //if (m_lights != null)
+        //{
+        //    for (int i = 0; i < m_lights.Count; ++i)
+        //    {
+        //        collider.onLightAdd(m_lights[i]);
+        //    }
+        //}
     }
 
     public void unRegister(RayCollider collider)
     {
         if (m_colliders == null) return;
         m_colliders.Remove(collider);
-        for (int i = 0; i < m_colliders.Count; ++i)
-        {
-            collider.onColliderRemove(m_colliders[i]);
-            m_colliders[i].onColliderRemove(collider);
-        }
+        //for (int i = 0; i < m_colliders.Count; ++i)
+        //{
+        //    collider.onColliderRemove(m_colliders[i]);
+        //    m_colliders[i].onColliderRemove(collider);
+        //}
+        collider.removeCallBackOnChange(onColliderChange);
         --m_colliderCount;
     }
 
-    public void callBackOnLightAdd(UnityAction<RayTracedLight> action)
-    {
-        m_onLightAdd?.AddListener(action);
-    }
+    //public void callBackOnLightAdd(UnityAction<RayTracedLight> action)
+    //{
+    //    m_onLightAdd?.AddListener(action);
+    //}
 
-    public void callBackOnLightRemove(UnityAction<RayTracedLight> action)
-    {
-        m_onLightAdd?.RemoveListener(action);
-    }
+    //public void callBackOnLightRemove(UnityAction<RayTracedLight> action)
+    //{
+    //    m_onLightAdd?.RemoveListener(action);
+    //}
 
     public void Update()
     {
         if (m_rays == null) return;
+        if (!m_reTrace) return;
         m_rayHits?.Clear();
         if (m_colliders != null)
         {
@@ -115,7 +117,6 @@ public class RayTracer : MonoBehaviour
 
         for (int r = 0; r < m_rays.Count; ++r)
         {
-            bool hasBounce = true;
             List<Ray> rays = m_rays[r].getBounces();
             rays.Insert(0, m_rays[r]);
             for (int i = 0; i < rays.Count; ++i)
@@ -148,10 +149,6 @@ public class RayTracer : MonoBehaviour
         }
     }
 
-    private void updateSerializeFields()
-    {
-    }
-
     public RayHit collide(Ray ray)
     {
         if (m_colliders == null) return new RayHit(ray);
@@ -170,5 +167,17 @@ public class RayTracer : MonoBehaviour
         }
         Ray reflect = ray.reflect(hit);
         return hit;
+    }
+
+    public void onLightChange(RayTracedLight light)
+    {
+        Debug.Log("light change");
+        m_reTrace = true;
+    }
+
+    public void onColliderChange(RayCollider collider)
+    {
+        Debug.Log("collider change");
+        m_reTrace = true;
     }
 }
