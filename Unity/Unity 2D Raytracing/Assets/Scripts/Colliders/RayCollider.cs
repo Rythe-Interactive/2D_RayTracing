@@ -17,7 +17,6 @@ public abstract class RayCollider : MonoBehaviour
     {
         init();
         m_tracer.register(this);
-        //m_tracer.callBackOnLightAdd(onLightAdd);
     }
     protected abstract void init();
     public void Update()
@@ -34,25 +33,6 @@ public abstract class RayCollider : MonoBehaviour
     public abstract void registerHit(RayHit hit);
     public abstract void clearHits();
     public abstract void applyHits();
-    //public virtual void onLightChange() { }
-    //public virtual void onLightAdd(RayTracedLight light)
-    //{
-    //    light.callBackOnChange(onLightChange);
-    //}
-    //public virtual void onLightRemove(RayTracedLight light)
-    //{
-    //    light.removeCallBackOnChange(onLightChange);
-    //}
-    //public virtual void onColliderChange() { }
-    //public virtual void onColliderAdd(RayCollider collider)
-    //{
-    //    if(m_oncolliderChange == null) m_oncolliderChange = new UnityEvent();
-    //    collider.callBackOnChange(onColliderChange);
-    //}
-    //public virtual void onColliderRemove(RayCollider collider)
-    //{
-    //    collider.removeCallBackOnChange(onColliderChange);
-    //}
     public void callBackOnChange(UnityAction<RayCollider> action)
     {
         if (m_oncolliderChange == null) m_oncolliderChange = new UnityEventRayCollider();
