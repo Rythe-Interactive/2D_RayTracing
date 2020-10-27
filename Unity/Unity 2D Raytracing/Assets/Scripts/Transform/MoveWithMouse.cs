@@ -5,6 +5,7 @@ using UnityEditor;
 
 public class MoveWithMouse : MonoBehaviour
 {
+    private static MoveWithMouse m_currentlyHolding = null;
     [SerializeField] public float radius;
     bool m_holding = false;
 
@@ -17,15 +18,27 @@ public class MoveWithMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (mouseOnThis() || m_holding)
+        if (mouseOnThis() && !m_holding)
         {
             if (Input.GetMouseButton(0))
             {
-                m_holding = true;
+                if (m_currentlyHolding == null)
+                {
+                    m_holding = true;
+                    m_currentlyHolding = this;
+                }
             }
-            else m_holding = false;
+            else
+            {
+                m_holding = false;
+                if (m_currentlyHolding == this) m_currentlyHolding = null;
+            }
         }
-        else m_holding = false;
+        else if(!(Input.GetMouseButton(0) && m_holding))
+        {
+            m_holding = false;
+            if(m_currentlyHolding == this) m_currentlyHolding = null;
+        }
 
         if (m_holding) moveToMouse();
     }
