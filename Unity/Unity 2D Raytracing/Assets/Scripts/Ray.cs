@@ -13,13 +13,14 @@ public class Ray
     private Color m_color;
     private int m_maxDepth;
     private RayCollider m_origin;
+    private float m_intensity;
 
     private const int stdDepth = 2;
     private Ray m_parent = null;
 
     static List<Ray> m_recycledRays;
 
-    public static Ray requestRay(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
+    public static Ray requestRay(Vector2 position, Vector2 direction, RayCollider origin, float intensity, Color color, int maxDepth = stdDepth)
     {
         Ray ray;
         if (m_recycledRays != null && m_recycledRays.Count != 0)
@@ -27,22 +28,22 @@ public class Ray
             int last = m_recycledRays.Count - 1;
             ray = m_recycledRays[last];
             m_recycledRays.RemoveAt(last);
-            ray.reUse(position.x, position.y, direction.x, direction.y, origin, color.r, color.g, color.b, color.a, maxDepth);
+            ray.reUse(position.x, position.y, direction.x, direction.y, origin, intensity, color.r, color.g, color.b, color.a, maxDepth);
         }
-        else ray = new Ray(position, direction, origin, color, maxDepth);
+        else ray = new Ray(position, direction, origin, intensity, color, maxDepth);
 
         RayVisualizer.instance.register(ray);
         return ray; 
     }
 
-    public static Ray requestRay(Vector2 position, Vector2 direction, Color color, int maxDepth = stdDepth)
+    public static Ray requestRay(Vector2 position, Vector2 direction, float intensity, Color color, int maxDepth = stdDepth)
     {
-        return requestRay(position, direction, null, color, maxDepth);
+        return requestRay(position, direction, null, intensity, color, maxDepth);
     }
 
-    public static Ray requestRay(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = stdDepth)
+    public static Ray requestRay(Vector2 position, Vector2 direction, RayCollider origin, float intensity, int maxDepth = stdDepth)
     {
-        return requestRay(position, direction, origin, new Color(1, 1, 1), maxDepth);
+        return requestRay(position, direction, origin, intensity, new Color(1, 1, 1), maxDepth);
     }
 
     public static void recycleRay(Ray ray)
@@ -58,24 +59,25 @@ public class Ray
         return m_recycledRays.Count;
     }
 
-    private Ray(Vector2 position, Vector2 direction, RayCollider origin, Color color, int maxDepth = stdDepth)
+    private Ray(Vector2 position, Vector2 direction, RayCollider origin, float intensity, Color color, int maxDepth = stdDepth)
     {
         m_position = position;
         m_direction = direction;
         m_color = color;
         m_maxDepth = maxDepth;
         m_origin = origin;
+        m_intensity = intensity;
 
         m_hasBounce = false;
         m_bounce = null;
         m_bounceInfo = new RayHit(this);
     }
 
-    private Ray(Vector2 position, Vector2 direction, Color color, int maxDepth = stdDepth) : 
-        this(position, direction, null, color, maxDepth) { }
+    private Ray(Vector2 position, Vector2 direction, float intensity, Color color, int maxDepth = stdDepth) : 
+        this(position, direction, null, intensity, color, maxDepth) { }
 
-    private Ray(Vector2 position, Vector2 direction, RayCollider origin, int maxDepth = stdDepth) :
-        this(position, direction, origin, new Color(1, 1, 1), maxDepth) { }
+    private Ray(Vector2 position, Vector2 direction, RayCollider origin, float intensity, int maxDepth = stdDepth) :
+        this(position, direction, origin, intensity, new Color(1, 1, 1), maxDepth) { }
 
     ~Ray()
     {
@@ -129,6 +131,14 @@ public class Ray
         }
     }
 
+    public float intensity
+    {
+        get
+        {
+            return m_intensity;
+        }
+    }
+
     #endregion
 
     public void resetReflect()
@@ -156,10 +166,15 @@ public class Ray
         
         //Reflect happens
         Vector2 reflectDir = Vector2.Reflect(m_direction, hit.normal).normalized;
-        m_hasBounce = true;
         if (m_bounce == null)
         {
-            m_bounce = requestRay(hit.point, reflectDir, m_color * hit.color, m_maxDepth - 1);
+            float intensity = hit.ray.m_intensity - Mathf.Abs((hit.point - hit.ray.position).magnitude);
+            if(intensity <= 0)
+            {
+                // The new ray will not have enough intensity to transfer
+                return null;
+            }
+            m_bounce = requestRay(hit.point, reflectDir, intensity, m_color * hit.color, m_maxDepth - 1);
             m_bounceInfo = hit;
 
         }
@@ -168,6 +183,7 @@ public class Ray
             Color cl = m_color * hit.color;
             m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
         }
+        m_hasBounce = true;
         m_bounce.m_parent = this;
         return m_bounce;
     }
@@ -231,18 +247,19 @@ public class Ray
         reUse(0, 0, 0, 0, null, 0, 0, 0, 0, 0);
     }
 
-    public void reUse(float x, float y, float dirX, float dirY, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
+    public void reUse(float x, float y, float dirX, float dirY, float intensity, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
     {
-        reUse(x, y, dirX, dirY, null, r, g, b, a, maxDepth);
+        reUse(x, y, dirX, dirY, null, intensity, r, g, b, a, maxDepth);
     }
 
-    public void reUse(float x, float y, float dirX, float dirY, RayCollider origin, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
+    public void reUse(float x, float y, float dirX, float dirY, RayCollider origin, float intensity, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
     {
         m_position.Set(x, y);
         m_direction.Set(dirX, dirY);
         setColor(r, g, b, a);
         m_maxDepth = maxDepth;
         m_origin = origin;
+        m_intensity = intensity;
 
         m_hasBounce = false;
     }

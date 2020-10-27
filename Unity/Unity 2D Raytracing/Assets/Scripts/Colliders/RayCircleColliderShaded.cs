@@ -103,7 +103,7 @@ public class RayCircleColliderShaded : RayCollider
         m_hits.Add(hit);
 
         float distToRay = (hit.point - hit.ray.position).magnitude;
-        float strength = (5 / distToRay) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction));
+        float strength = (hit.ray.intensity / distToRay) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction));
         if (strength <= 0)
         {
             Debug.Log("Skipping hits");

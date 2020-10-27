@@ -13,7 +13,7 @@ public class RayTracedPointLight : RayTracedLight
         {
             float angle = 360 / (float)m_rayCount * (float)i;
             Vector3 direction = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1)) * this.transform.rotation * new Vector3(1, 0, 0);
-            Ray ray = Ray.requestRay(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>(), m_color);
+            Ray ray = Ray.requestRay(this.transform.position, direction, this.gameObject.GetComponent<RayCollider>(), m_intensity, m_color);
             m_rays.Add(ray);
             m_tracer.register(ray);
         }
@@ -36,7 +36,7 @@ public class RayTracedPointLight : RayTracedLight
                 if (i >= m_currentRayCount)
                 {
                     //Raycount has increased
-                    Ray ray = Ray.requestRay(m_position, direction, this.GetComponent<RayCollider>());
+                    Ray ray = Ray.requestRay(m_position, direction, this.GetComponent<RayCollider>(), m_intensity, m_color);
                     m_tracer.register(ray);
                     m_rays.Add(ray);
                 }
@@ -54,7 +54,7 @@ public class RayTracedPointLight : RayTracedLight
                 }
                 else
                 {
-                    m_rays[i].reUse(m_position.x, m_position.y, direction.x, direction.y, this.gameObject.GetComponent<RayCollider>());
+                    m_rays[i].reUse(m_position.x, m_position.y, direction.x, direction.y, this.gameObject.GetComponent<RayCollider>(), m_intensity, m_color.r, m_color.g, m_color.b, m_color.a);
                 }
             }
 

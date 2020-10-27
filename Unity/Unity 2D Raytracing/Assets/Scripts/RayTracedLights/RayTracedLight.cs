@@ -15,6 +15,7 @@ public abstract class RayTracedLight : MonoBehaviour
     [SerializeField] protected RayTracer m_tracer;
     [SerializeField] protected Color m_color;
     [SerializeField] protected bool m_useSpriteRendColor;
+    [SerializeField] protected float m_intensity = 1.0f;
 
     protected List<Ray> m_rays;
     protected Vector2 m_position;
