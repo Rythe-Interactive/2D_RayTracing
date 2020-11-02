@@ -7,14 +7,12 @@ public class RayCircleColliderShaded : RayCollider
 {
     [SerializeField] private float m_radius;
     [SerializeField] private readonly Vector2 m_offset;
-    private Sprite m_sprite;
     [SerializeField] private List<RayHit> m_hits;
     [SerializeField] private Texture2D m_lightMapTexture;
-    [SerializeField] private bool m_useExperimentalLightMapReset = false;
+    private Sprite m_sprite;
     private Material m_rayTracingOutlineMaterial;
     private Vector2 m_position;
     private Quaternion m_rotation;
-    List<Ray> m_precisionRays;
 
     protected override void init()
     {
@@ -22,6 +20,8 @@ public class RayCircleColliderShaded : RayCollider
         m_sprite = renderer.sprite;
         m_rayTracingOutlineMaterial = renderer.material; // Create instance of material
         renderer.material = m_rayTracingOutlineMaterial;
+
+        m_position = this.transform.position;
 
         if(m_lightMapTexture == null) m_lightMapTexture = new Texture2D(m_sprite.texture.width, m_sprite.texture.height);
         m_lightMapTexture.minimumMipmapLevel = 2;
@@ -31,7 +31,6 @@ public class RayCircleColliderShaded : RayCollider
             {
                 m_lightMapTexture.SetPixel(x, y, Color.clear);
             }
-        m_position = this.transform.position;
 
         m_lightMapTexture.filterMode = FilterMode.Trilinear;
         m_lightMapTexture.anisoLevel = 4;
@@ -40,8 +39,7 @@ public class RayCircleColliderShaded : RayCollider
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
         m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 5);
         applyHits();
-
-        m_precisionRays = new List<Ray>();
+        m_hits = new List<RayHit>();
     }
 
     protected override void update()
@@ -59,11 +57,6 @@ public class RayCircleColliderShaded : RayCollider
         }
     }
 
-    public void OnDestroy()
-    {
-        m_tracer.unRegister(this);
-    }
-
     public override bool collide(Ray ray, out RayHit hit)
     {
         if (ray == null || ray.origin == this)
@@ -77,7 +70,7 @@ public class RayCircleColliderShaded : RayCollider
         // Test if ray starts in circle
         if (Mathf.Abs(dist.magnitude) < m_radius)
         {
-            Vector2 pixelOnCircle = textureSpaceCoord(ray.position);
+            Vector2 pixelOnCircle = textureSpaceCoord(ray.position, m_sprite);
             hit = new RayHit(ray, ray.position, new Vector2Int((int)pixelOnCircle.x, (int)pixelOnCircle.y), ray.direction.normalized, this, m_sprite.texture.GetPixel((int)pixelOnCircle.x, (int)pixelOnCircle.y));
             hit.fromInsideShape = true;
             return true;
@@ -109,7 +102,7 @@ public class RayCircleColliderShaded : RayCollider
             return false;
         }
         Vector2 normal = (poi - center).normalized;
-        Vector2 pixel = textureSpaceCoord(poi);
+        Vector2 pixel = textureSpaceCoord(poi, m_sprite);
         hit = new RayHit(ray, poi, new Vector2Int((int)pixel.x, (int)pixel.y), normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         return true;
     }
@@ -170,30 +163,6 @@ public class RayCircleColliderShaded : RayCollider
     public override void clearHits()
     {
         m_hits.Clear();
-    }
-
-    private Vector2 textureSpaceUV(Vector2 worldPos)
-    {
-        Texture2D tex = m_sprite.texture;
-        Vector2 texSpaceCoord = textureSpaceCoord(worldPos);
-
-        Vector2 uvs = texSpaceCoord;
-        uvs.x /= tex.width;
-        uvs.y /= tex.height;
-
-        return uvs;
-    }
-
-    private Vector2 textureSpaceCoord(Vector2 worldPos)
-    {
-        float ppu = m_sprite.pixelsPerUnit;
-
-        Vector2 localPos = transform.InverseTransformPoint(worldPos) * ppu;
-
-        Vector2 texSpacePivot = new Vector2(m_sprite.rect.x, m_sprite.rect.y) + m_sprite.pivot;
-        Vector2 texSpaceCoord = texSpacePivot + localPos;
-
-        return texSpaceCoord;
     }
 
     public Vector2 center

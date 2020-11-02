@@ -28,6 +28,12 @@ public abstract class RayCollider : MonoBehaviour
             m_oncolliderChange?.Invoke(this);
         }
     }
+
+    public void OnDestroy()
+    {
+        m_tracer.unRegister(this);
+    }
+
     protected virtual void update() { }
     public abstract bool collide(Ray ray, out RayHit hit);
     public abstract void registerHit(RayHit hit);
@@ -41,5 +47,17 @@ public abstract class RayCollider : MonoBehaviour
     public void removeCallBackOnChange(UnityAction<RayCollider> action)
     {
         m_oncolliderChange?.RemoveListener(action);
+    }
+
+    protected Vector2 textureSpaceCoord(Vector2 worldPos, Sprite sprite)
+    {
+        float ppu = sprite.pixelsPerUnit;
+
+        Vector2 localPos = transform.InverseTransformPoint(worldPos) * ppu;
+
+        Vector2 texSpacePivot = new Vector2(sprite.rect.x, sprite.rect.y) + sprite.pivot;
+        Vector2 texSpaceCoord = texSpacePivot + localPos;
+
+        return texSpaceCoord;
     }
 }

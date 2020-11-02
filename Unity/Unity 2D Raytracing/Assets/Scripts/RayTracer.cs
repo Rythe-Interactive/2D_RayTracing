@@ -130,7 +130,10 @@ public class RayTracer : MonoBehaviour
         {
             if(m_colliders[i].collide(ray, out RayHit newHit))
             {
-                if (newHit.fromInsideShape) hits.Add(newHit);
+                if (newHit.fromInsideShape)
+                {
+                    hits.Add(newHit);
+                }
                 else if ((closestHit.nullHit || (newHit.point - ray.position).magnitude < dist))
                 {
                     dist = (newHit.point - ray.position).magnitude;
