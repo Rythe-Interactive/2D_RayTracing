@@ -82,13 +82,20 @@ public class RayRectBackgroundColliderShaded : RayCollider
         }
         else
         {
-            strength = ((hit.ray.intensity / distToRay) - 1) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction)) *m_lightMultiplier;
+            strength = ((hit.ray.intensity / distToRay) - 1) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction)) * m_lightMultiplier;
             if (strength <= 0)
             {
                 return;
             }
         }
         //float maxDist = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width, 2) + Mathf.Pow(m_lightMapTexture.height, 2));
+
+        float distToEnd = 0;
+        if (hit.ray.hasBounce())
+        {
+            Vector2 end = hit.ray.getBounce().position;
+            distToEnd = Mathf.Abs((end - hit.ray.position).magnitude) * m_sprite.pixelsPerUnit;
+        }
 
         float maxDistWithLight = strength * m_sprite.pixelsPerUnit;
         int loops = Mathf.FloorToInt(maxDistWithLight) + 1;
@@ -98,6 +105,10 @@ public class RayRectBackgroundColliderShaded : RayCollider
             if (pxl.x >= 0 && pxl.x < m_lightMapTexture.width &&
                 pxl.y >= 0 && pxl.y < m_lightMapTexture.height)
             {
+                if(distToEnd != 0 && Mathf.Abs((hit.pixel - pxl).magnitude) >= distToEnd)
+                {
+                    break;
+                }
                 float strengthForPixel = strength - (((hit.pixel - pxl).magnitude / m_sprite.pixelsPerUnit) * (1/m_lightMultiplier));
                 if (strengthForPixel <= 0)
                 {
