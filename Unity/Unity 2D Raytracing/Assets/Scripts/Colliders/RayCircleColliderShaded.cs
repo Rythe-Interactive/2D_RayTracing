@@ -74,6 +74,17 @@ public class RayCircleColliderShaded : RayCollider
         Vector2 pos = center;
         Vector2 dist = pos - ray.position; // Distance between ray start and circle center
 
+        // Test if ray starts in circle
+        if (Mathf.Abs(dist.magnitude) < m_radius)
+        {
+            Vector2 pixelOnCircle = textureSpaceCoord(ray.position);
+            hit = new RayHit(ray, ray.position, new Vector2Int((int)pixelOnCircle.x, (int)pixelOnCircle.y), ray.direction.normalized, this, m_sprite.texture.GetPixel((int)pixelOnCircle.x, (int)pixelOnCircle.y));
+            hit.fromInsideShape = true;
+            return true;
+        }
+
+        // Projection of ray onto the distance between ray start and circle center
+        // Gives the distance between the center of the circle and the closest point on the ray
         float centerToRay = Vector2.Dot(dist, ray.normal.normalized);
 
         if (Mathf.Abs(centerToRay) > m_radius)
@@ -86,6 +97,11 @@ public class RayCircleColliderShaded : RayCollider
         float closestRayPointToPoi = Mathf.Sqrt(Mathf.Pow(m_radius, 2) - Mathf.Pow(centerToRay, 2));
 
         Vector2 poi = closestRayPoint - (closestRayPointToPoi * ray.direction.normalized);
+        if ((poi - ray.position).magnitude > ray.intensity)
+        {
+            hit = new RayHit(null);
+            return false;
+        }
         Vector2 rayToPoi = poi - ray.position;
         if (rayToPoi.normalized != ray.direction)
         {
@@ -103,11 +119,18 @@ public class RayCircleColliderShaded : RayCollider
         m_hits.Add(hit);
 
         float distToRay = (hit.point - hit.ray.position).magnitude;
-        float strength = (hit.ray.intensity / distToRay) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction));
-        if (strength <= 0)
+        float strength = 0;
+        if (distToRay == 0)
         {
-            Debug.Log("Skipping hits");
-            return;
+            strength = hit.ray.intensity;
+        }
+        else
+        {
+            strength = ((hit.ray.intensity / distToRay) - 1) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction));
+            if (strength <= 0)
+            {
+                return;
+            }
         }
         //float maxDist = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width, 2) + Mathf.Pow(m_lightMapTexture.height, 2));
 

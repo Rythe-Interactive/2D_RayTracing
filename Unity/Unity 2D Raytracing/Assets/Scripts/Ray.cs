@@ -153,7 +153,7 @@ public class Ray
 
     public Ray reflect(RayHit hit)
     {
-        if (hit.nullHit)
+        if (hit.nullHit || hit.fromInsideShape)
         {
             resetReflect();
             return null;

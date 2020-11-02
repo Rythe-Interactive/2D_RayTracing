@@ -92,6 +92,22 @@ public abstract class RayTracedLight : MonoBehaviour
         }
     }
 
+    public float intensity
+    {
+        get
+        {
+            return m_intensity;
+        }
+    }
+
+    public Color color
+    {
+        get
+        {
+            return m_color;
+        }
+    }
+
     public void callBackOnChange(UnityAction<RayTracedLight> action)
     {
         if (m_onLightChange == null) m_onLightChange = new UnityEventRayTracerLight();

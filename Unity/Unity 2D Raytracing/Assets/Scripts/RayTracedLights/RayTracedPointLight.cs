@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class RayTracedPointLight : RayTracedLight
 {
@@ -103,3 +104,18 @@ public class RayTracedPointLight : RayTracedLight
         }
     }
 }
+
+#if (UNITY_EDITOR)
+[CustomEditor(typeof(RayTracedPointLight))]
+public class RayTracedPointLightEditor : Editor
+{
+    private RayTracedPointLight m_light;
+
+    public void OnSceneGUI()
+    {
+        m_light = this.target as RayTracedPointLight;
+        Handles.color = Color.red;
+        Handles.DrawWireDisc(m_light.transform.position, new Vector3(0, 0, 1), m_light.intensity);
+    }
+}
+#endif

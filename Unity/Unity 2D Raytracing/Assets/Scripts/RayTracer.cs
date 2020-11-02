@@ -133,7 +133,8 @@ public class RayTracer : MonoBehaviour
                 }
             }
         }
-        Ray reflect = ray.reflect(hit);
+        if (hit.fromInsideShape) ray.resetReflect();
+        else ray.reflect(hit);
         return hit;
     }
 
