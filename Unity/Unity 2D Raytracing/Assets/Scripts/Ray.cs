@@ -146,7 +146,7 @@ public class Ray
         m_hasBounce = false;
         if (m_bounce != null)
         {
-            m_bounce.reUse(0, 0, 0, 0, null, 0, 0, 0);
+            m_bounce.reUse(0, 0, 0, 0, null, 0, 0, 0, 0, 0);
             m_bounce.resetReflect();
         }
     }
@@ -181,7 +181,7 @@ public class Ray
         else
         {
             Color cl = m_color * hit.color;
-            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
+            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, null, hit.ray.intensity, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
         }
         m_hasBounce = true;
         m_bounce.m_parent = this;
@@ -245,11 +245,6 @@ public class Ray
     public void reset()
     {
         reUse(0, 0, 0, 0, null, 0, 0, 0, 0, 0);
-    }
-
-    public void reUse(float x, float y, float dirX, float dirY, float intensity, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
-    {
-        reUse(x, y, dirX, dirY, null, intensity, r, g, b, a, maxDepth);
     }
 
     public void reUse(float x, float y, float dirX, float dirY, RayCollider origin, float intensity, float r = 1, float g = 1, float b = 1, float a = 1, int maxDepth = stdDepth)
