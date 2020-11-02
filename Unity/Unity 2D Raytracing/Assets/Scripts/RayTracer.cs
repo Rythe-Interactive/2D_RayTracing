@@ -89,15 +89,18 @@ public class RayTracer : MonoBehaviour
             rays.Insert(0, m_rays[r]);
             for (int i = 0; i < rays.Count; ++i)
             {
-                RayHit hit = collide(rays[i]);
-                if (!hit.nullHit)
+                List<RayHit> hits = collide(rays[i]);
+                if (hits != null && hits.Count != 0)
                 {
-                    if(m_rayHits == null) m_rayHits = new List<RayHit>();
-                    m_rayHits.Add(hit);
-                    hit.collider.registerHit(hit);
-                }
-                else
-                {
+                    if (m_rayHits == null) m_rayHits = new List<RayHit>();
+                    for (int h = 0; h < hits.Count; ++h)
+                    {
+                        if (!hits[h].nullHit)
+                        {
+                            m_rayHits.Add(hits[h]);
+                            hits[h].collider.registerHit(hits[h]);
+                        }
+                    }
                 }
 
                 if(!rays[i].hasBounce())
@@ -117,25 +120,27 @@ public class RayTracer : MonoBehaviour
         }
     }
 
-    public RayHit collide(Ray ray)
+    public List<RayHit> collide(Ray ray)
     {
-        if (m_colliders == null) return new RayHit(ray);
-        RayHit hit = new RayHit(ray);
+        if (m_colliders == null) return null;
+        List<RayHit> hits = new List<RayHit>();
+        RayHit closestHit = new RayHit(ray);
         float dist = 0;
         for (int i = 0; i < m_colliders.Count; ++i)
         {
             if(m_colliders[i].collide(ray, out RayHit newHit))
             {
-                if(hit.nullHit || (newHit.point-ray.position).magnitude < dist)
+                if (newHit.fromInsideShape) hits.Add(newHit);
+                else if ((closestHit.nullHit || (newHit.point - ray.position).magnitude < dist))
                 {
                     dist = (newHit.point - ray.position).magnitude;
-                    hit = newHit;
+                    closestHit = newHit;
                 }
             }
         }
-        if (hit.fromInsideShape) ray.resetReflect();
-        else ray.reflect(hit);
-        return hit;
+        if (!closestHit.nullHit) hits.Add(closestHit);
+        ray.reflect(closestHit);
+        return hits;
     }
 
     public void onLightChange(RayTracedLight light)
