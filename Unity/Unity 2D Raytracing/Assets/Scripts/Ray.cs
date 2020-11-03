@@ -153,7 +153,7 @@ public class Ray
 
     public Ray reflect(RayHit hit)
     {
-        if (hit.nullHit || hit.fromInsideShape)
+        if (hit.nullHit || hit.fromInsideShape || m_color * hit.color == Color.black)
         {
             resetReflect();
             return null;
