@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class RayRectBackgroundColliderShaded : RayCollider
+public class RayAABBColliderShaded : RayCollider
 {
     [SerializeField] Rect m_rect;
     [SerializeField] private List<RayHit> m_hits;
@@ -12,6 +12,7 @@ public class RayRectBackgroundColliderShaded : RayCollider
     private Sprite m_sprite;
     private Material m_rayTracingOutlineMaterial;
     private float m_previousLightMultiplier;
+    private Vector2 m_position;
 
     protected override void init()
     {
@@ -47,6 +48,11 @@ public class RayRectBackgroundColliderShaded : RayCollider
             m_previousLightMultiplier = m_lightMultiplier;
             m_changed = true;
         }
+        if(m_position != new Vector2(this.transform.position.x, this.transform.position.y))
+        {
+            m_position = this.transform.position;
+            m_changed = true;
+        }
     }
 
     public override bool collide(Ray ray, out RayHit hit)
@@ -56,7 +62,8 @@ public class RayRectBackgroundColliderShaded : RayCollider
             hit = new RayHit(null);
             return false;
         }
-        // Backgrounds only receive light when the light is directly on them
+        
+        // Check if light is on the rect
         if (ray.position.x >= left && ray.position.x <= right && ray.position.y >= top && ray.position.y <= bottom)
         {
             Vector2 pixelOnBg = textureSpaceCoord(ray.position, m_sprite);
@@ -64,10 +71,93 @@ public class RayRectBackgroundColliderShaded : RayCollider
             hit.fromInsideShape = true;
             return true;
         }
-        //Debug.Log(ray.position);
-        //Debug.Break();
-        hit = new RayHit(null);
-        return false;
+
+        // Rect collision
+        // 4 lines
+        Vector2[] lineStart = new Vector2[2];
+        Vector2[] lineEnd = new Vector2[2];
+        Vector2 poi = new Vector2(0,0);
+        Vector2 normal = new Vector2(0, 0);
+        float toi = Mathf.Infinity;
+        bool collision = false;
+        // Determine the two lines that can be intersected for a certain ray
+        if(ray.direction.x >= 0)
+        {
+            // Ray comes from left, going right
+            if(ray.direction.y >= 0)
+            {
+                // Ray comes from left top
+                lineStart[0] = leftTop;
+                lineEnd[0] = rightTop;
+                lineStart[1] = leftBottom;
+                lineEnd[1] = leftTop;
+            }
+            else
+            {
+                // Ray comes from left bottom
+                lineStart[0] = leftBottom;
+                lineEnd[0] = leftTop;
+                lineStart[1] = rightBottom;
+                lineEnd[1] = leftBottom;
+            }
+        }
+        else
+        {
+            // Ray comes from right, going left
+            if (ray.direction.y >= 0)
+            {
+                // Ray comes from right top
+                lineStart[0] = leftTop;
+                lineEnd[0] = rightTop;
+                lineStart[1] = rightTop;
+                lineEnd[1] = rightBottom;
+            }
+            else
+            {
+                // Ray comes from right bottom
+                lineStart[0] = rightTop;
+                lineEnd[0] = rightBottom;
+                lineStart[1] = rightBottom;
+                lineEnd[1] = leftBottom;
+            }
+        }
+
+        for(int i = 0; i < 2; ++i)
+        {
+            Vector2 startToStart = lineStart[i] - ray.position;
+            Vector2 lineDir = lineEnd[i] - lineStart[i];
+            float cross = FibonacciCross(ray.direction, lineDir);
+
+            // calculate time of impact of ray onto line
+            // Time of impact sould be 0-1
+            float u = FibonacciCross(startToStart, ray.direction) / cross;
+            // Time of impact on the ray
+            // Because a ray is infinite it should be > 0
+            float t = FibonacciCross(startToStart, lineDir) / cross;
+
+            if(u > 0 && u < 1 && t > 0 && (!collision || t < toi))
+            {
+                // Collision
+                collision = true;
+                toi = t;
+                poi = ray.position + ray.direction * t;
+                normal.Set(-lineDir.y, lineDir.x);
+            }
+        }
+        if (!collision)
+        {
+            hit = new RayHit(null);
+            return false;
+        }
+
+        Vector2 pixel = textureSpaceCoord(poi, m_sprite);
+        hit = new RayHit(ray, poi, new Vector2Int((int)pixel.x, (int)pixel.y), normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
+        return true;
+    }
+
+    public float FibonacciCross(Vector2 x, Vector2 y)
+    {
+        return (x.x * y.y) - (x.y * y.x);
     }
 
     public override void registerHit(RayHit hit)
@@ -88,10 +178,9 @@ public class RayRectBackgroundColliderShaded : RayCollider
                 return;
             }
         }
-        //float maxDist = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width, 2) + Mathf.Pow(m_lightMapTexture.height, 2));
 
         float distToEnd = 0;
-        if (hit.ray.hasBounce())
+        if (hit.ray.hasBounce() && hit.ray.getBounce().origin != this)
         {
             Vector2 end = hit.ray.getBounce().position;
             distToEnd = Mathf.Abs((end - hit.ray.position).magnitude) * m_sprite.pixelsPerUnit;
@@ -105,14 +194,16 @@ public class RayRectBackgroundColliderShaded : RayCollider
             if (pxl.x >= 0 && pxl.x < m_lightMapTexture.width &&
                 pxl.y >= 0 && pxl.y < m_lightMapTexture.height)
             {
-                if(distToEnd != 0 && Mathf.Abs((hit.pixel - pxl).magnitude) >= distToEnd)
+                float pxlToPixel = (hit.pixel - pxl).magnitude;
+                if (distToEnd != 0 && Mathf.Abs(pxlToPixel) >= distToEnd)
                 {
                     break;
                 }
-                float strengthForPixel = strength - (((hit.pixel - pxl).magnitude / m_sprite.pixelsPerUnit) * (1/m_lightMultiplier));
+                float strengthForPixel = strength - ((pxlToPixel / m_sprite.pixelsPerUnit) * (1/m_lightMultiplier));
                 if (strengthForPixel <= 0)
                 {
                     // From here on out the pixels will not receive any light
+                    // Therefore we can break form the loop
                     break;
                 }
                 m_lightMapTexture.SetPixel((int)pxl.x, (int)pxl.y, m_lightMapTexture.GetPixel((int)pxl.x, (int)pxl.y) + hit.ray.color * strengthForPixel);
@@ -219,14 +310,14 @@ public class RayRectBackgroundColliderShaded : RayCollider
 }
 
 #if (UNITY_EDITOR)
-[CustomEditor(typeof(RayRectBackgroundColliderShaded))]
+[CustomEditor(typeof(RayAABBColliderShaded))]
 public class RayRectBackgroundColliderShadedEditor : Editor
 {
-    private RayRectBackgroundColliderShaded m_collider;
+    private RayAABBColliderShaded m_collider;
 
     public void OnSceneGUI()
     {
-        m_collider = this.target as RayRectBackgroundColliderShaded;
+        m_collider = this.target as RayAABBColliderShaded;
         Handles.color = Color.red;
         Vector2 lt = m_collider.leftTop;
         Vector2 lb = m_collider.leftBottom;

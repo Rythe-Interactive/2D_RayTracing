@@ -125,7 +125,13 @@ public class RayCircleColliderShaded : RayCollider
                 return;
             }
         }
-        //float maxDist = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width, 2) + Mathf.Pow(m_lightMapTexture.height, 2));
+
+        float distToEnd = 0;
+        if (hit.ray.hasBounce() && hit.ray.getBounce().origin != this)
+        {
+            Vector2 end = hit.ray.getBounce().position;
+            distToEnd = Mathf.Abs((end - hit.ray.position).magnitude) * m_sprite.pixelsPerUnit;
+        }
 
         float maxDistWithLight = strength * m_sprite.pixelsPerUnit;
         int loops = Mathf.FloorToInt(maxDistWithLight) + 1;
@@ -135,7 +141,12 @@ public class RayCircleColliderShaded : RayCollider
             if (pxl.x >= 0 && pxl.x < m_lightMapTexture.width &&
                 pxl.y >= 0 && pxl.y < m_lightMapTexture.height)
             {
-                float strengthForPixel = strength - (hit.pixel - pxl).magnitude / m_sprite.pixelsPerUnit;
+                float pxlToPixel = (hit.pixel - pxl).magnitude;
+                if (distToEnd != 0 && Mathf.Abs(pxlToPixel) >= distToEnd)
+                {
+                    break;
+                }
+                float strengthForPixel = strength - pxlToPixel / m_sprite.pixelsPerUnit;
                 if(strengthForPixel <= 0)
                 {
                     // From here on out the pixels will not receive any light

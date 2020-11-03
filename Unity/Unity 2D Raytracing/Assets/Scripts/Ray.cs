@@ -174,14 +174,14 @@ public class Ray
                 // The new ray will not have enough intensity to transfer
                 return null;
             }
-            m_bounce = requestRay(hit.point, reflectDir, intensity, m_color * hit.color, m_maxDepth - 1);
+            m_bounce = requestRay(hit.point, reflectDir, hit.collider, intensity, m_color * hit.color, m_maxDepth - 1);
             m_bounceInfo = hit;
 
         }
         else
         {
             Color cl = m_color * hit.color;
-            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, null, hit.ray.intensity, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
+            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, hit.collider, hit.ray.intensity, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
         }
         m_hasBounce = true;
         m_bounce.m_parent = this;

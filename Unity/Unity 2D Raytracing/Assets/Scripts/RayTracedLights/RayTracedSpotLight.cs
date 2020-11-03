@@ -156,9 +156,9 @@ public class RayTracedSpotLightEditor : Editor
     {
         m_light = this.target as RayTracedSpotLight;
         Handles.color = Color.yellow;
-        Handles.DrawSolidDisc(m_light.transform.position, new Vector3(0, 0, 1), m_light.intensity);
+        Handles.DrawWireDisc(m_light.transform.position, new Vector3(0, 0, 1), m_light.intensity);
         Handles.color = Color.red;
-        Handles.DrawSolidArc(m_light.transform.position, new Vector3(0, 0, 1), m_light.directionOfStart, m_light.angle, m_light.intensity);
+        Handles.DrawSolidArc(m_light.transform.position, new Vector3(0, 0, 1), m_light.directionOfStart, m_light.angle, 2);
     }
 }
 #endif
