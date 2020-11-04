@@ -9,6 +9,7 @@ public class RayAABBColliderShaded : RayCollider
     [SerializeField] private List<RayHit> m_hits;
     [SerializeField] private Texture2D m_lightMapTexture;
     [SerializeField] private float m_lightMultiplier = 1.0f;
+    [SerializeField] private bool m_isBackground = false;
     private Sprite m_sprite;
     private Material m_rayTracingOutlineMaterial;
     private float m_previousLightMultiplier;
@@ -152,6 +153,7 @@ public class RayAABBColliderShaded : RayCollider
 
         Vector2 pixel = textureSpaceCoord(poi, m_sprite);
         hit = new RayHit(ray, poi, new Vector2Int((int)pixel.x, (int)pixel.y), normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
+        if (m_isBackground) hit.fromInsideShape = true;
         return true;
     }
 
