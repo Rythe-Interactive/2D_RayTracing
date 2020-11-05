@@ -15,6 +15,11 @@ public class RayAABBColliderShaded : RayCollider
     private float m_previousLightMultiplier;
     private Vector2 m_position;
 
+    LineSegment m_leftLine;
+    LineSegment m_rightLine;
+    LineSegment m_topLine;
+    LineSegment m_bottomLine;
+
     protected override void init()
     {
         SpriteRenderer renderer = this.GetComponent<SpriteRenderer>();
@@ -40,6 +45,11 @@ public class RayAABBColliderShaded : RayCollider
         m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 5);
         applyHits();
         m_hits = new List<RayHit>();
+
+        m_leftLine = new LineSegment(leftBottom, leftTop);
+        m_topLine = new LineSegment(leftTop, rightTop);
+        m_rightLine = new LineSegment(rightTop, rightBottom);
+        m_bottomLine = new LineSegment(rightBottom, leftBottom);
     }
 
     protected override void update()
@@ -75,8 +85,7 @@ public class RayAABBColliderShaded : RayCollider
 
         // Rect collision
         // 4 lines
-        Vector2[] lineStart = new Vector2[2];
-        Vector2[] lineEnd = new Vector2[2];
+        LineSegment[] lines = new LineSegment[2];
         Vector2 poi = new Vector2(0,0);
         Vector2 normal = new Vector2(0, 0);
         float toi = Mathf.Infinity;
@@ -88,18 +97,14 @@ public class RayAABBColliderShaded : RayCollider
             if(ray.direction.y >= 0)
             {
                 // Ray comes from left top
-                lineStart[0] = leftTop;
-                lineEnd[0] = rightTop;
-                lineStart[1] = leftBottom;
-                lineEnd[1] = leftTop;
+                lines[0] = m_leftLine;
+                lines[1] = m_topLine;
             }
             else
             {
                 // Ray comes from left bottom
-                lineStart[0] = leftBottom;
-                lineEnd[0] = leftTop;
-                lineStart[1] = rightBottom;
-                lineEnd[1] = leftBottom;
+                lines[0] = m_bottomLine;
+                lines[1] = m_leftLine;
             }
         }
         else
@@ -108,41 +113,29 @@ public class RayAABBColliderShaded : RayCollider
             if (ray.direction.y >= 0)
             {
                 // Ray comes from right top
-                lineStart[0] = leftTop;
-                lineEnd[0] = rightTop;
-                lineStart[1] = rightTop;
-                lineEnd[1] = rightBottom;
+                lines[0] = m_topLine;
+                lines[1] = m_rightLine;
             }
             else
             {
                 // Ray comes from right bottom
-                lineStart[0] = rightTop;
-                lineEnd[0] = rightBottom;
-                lineStart[1] = rightBottom;
-                lineEnd[1] = leftBottom;
+                lines[0] = m_rightLine;
+                lines[1] = m_bottomLine;
             }
         }
 
         for(int i = 0; i < 2; ++i)
         {
-            Vector2 startToStart = lineStart[i] - ray.position;
-            Vector2 lineDir = lineEnd[i] - lineStart[i];
-            float cross = FibonacciCross(ray.direction, lineDir);
+            Vector2 impact;
+            bool coll = lines[i].collideWithRay(ray, out impact, out float time);
 
-            // calculate time of impact of ray onto line
-            // Time of impact sould be 0-1
-            float u = FibonacciCross(startToStart, ray.direction) / cross;
-            // Time of impact on the ray
-            // Because a ray is infinite it should be > 0
-            float t = FibonacciCross(startToStart, lineDir) / cross;
-
-            if(u > 0 && u < 1 && t > 0 && (!collision || t < toi))
+            if(coll && (!collision || time < toi))
             {
                 // Collision
                 collision = true;
-                toi = t;
-                poi = ray.position + ray.direction * t;
-                normal.Set(-lineDir.y, lineDir.x);
+                toi = time;
+                poi = impact;
+                normal = lines[i].normal();
             }
         }
         if (!collision)
