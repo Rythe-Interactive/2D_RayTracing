@@ -14,9 +14,11 @@ public class RayTracer : MonoBehaviour
     private List<RayTracedLight> m_lights;
 
     private bool m_reTrace = true;
+    //private BIH m_bih = new BIH();
 
     public void Awake()
     {
+
     }
 
     public void register(Ray ray)
@@ -59,6 +61,7 @@ public class RayTracer : MonoBehaviour
         collider.callBackOnChange(onColliderChange);
         m_colliders.Add(collider);
         ++m_colliderCount;
+        //m_bih.addCollider(collider);
     }
 
     public void unRegister(RayCollider collider)
@@ -67,6 +70,7 @@ public class RayTracer : MonoBehaviour
         m_colliders.Remove(collider);
         collider.removeCallBackOnChange(onColliderChange);
         --m_colliderCount;
+        //m_bih.removeCollider(collider);
     }
 
     public void Update()

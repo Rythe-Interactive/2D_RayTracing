@@ -19,17 +19,17 @@ public struct LineSegment
     {
         poi = new Vector2(0, 0);
         Vector2 startToStart = m_start - ray.position;
-        Vector2 lineDir = m_end - m_start;
+        Vector2 lineDir = direction;
         float cross = FibonacciCross(ray.direction, lineDir);
 
-        // calculate time of impact of ray onto line
-        // Time of impact sould be 0-1
-        float u = FibonacciCross(startToStart, ray.direction) / cross;
-        // Time of impact on the ray
-        // Because a ray is infinite it should be > 0
-        float t = FibonacciCross(startToStart, lineDir) / cross;
+        // calculate time of impact of ray
+        // Time of impact sould be > 0 (because ray is infinite)
+        float u = FibonacciCross(startToStart, lineDir) / cross;
+        // Time of impact on the linesegment
+        // should be 0-1
+        float t = FibonacciCross(startToStart, ray.direction) / cross;
 
-        if (u > 0 && u < 1 && t > 0)
+        if (u > 0 && t > 0 && t < 1)
         {
             // Collision
             poi = ray.position + ray.direction * t;
@@ -67,7 +67,7 @@ public struct LineSegment
     {
         get
         {
-            return (m_end - m_start).normalized;
+            return (m_end - m_start);
         }
     }
 
