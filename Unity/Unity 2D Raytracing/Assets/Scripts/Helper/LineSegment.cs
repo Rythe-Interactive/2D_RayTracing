@@ -15,6 +15,12 @@ public struct LineSegment
         m_end = end;
     }
 
+    public void set(Vector2 start, Vector2 end)
+    {
+        m_start = start;
+        m_end = end;
+    }
+
     public bool collideWithRay(Ray ray, out Vector2 poi, out float toi)
     {
         poi = new Vector2(0, 0);

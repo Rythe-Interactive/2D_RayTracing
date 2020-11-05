@@ -64,6 +64,7 @@ public class RayAABBColliderShaded : RayCollider
         {
             m_position = this.transform.position;
             m_changed = true;
+            updateLines();
         }
     }
 
@@ -143,7 +144,6 @@ public class RayAABBColliderShaded : RayCollider
             hit = new RayHit(null);
             return false;
         }
-        Debug.Log(normal);
         Vector2 pixel = textureSpaceCoord(poi, m_sprite);
         hit = new RayHit(ray, poi, new Vector2Int((int)pixel.x, (int)pixel.y), normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         if (m_isBackground) hit.fromInsideShape = true;
@@ -221,6 +221,14 @@ public class RayAABBColliderShaded : RayCollider
     public override void clearHits()
     {
         m_hits.Clear();
+    }
+
+    private void updateLines()
+    {
+        m_leftLine.set(leftBottom, leftTop);
+        m_topLine.set(leftTop, rightTop);
+        m_rightLine.set(rightTop, rightBottom);
+        m_bottomLine.set(rightBottom, leftBottom);
     }
 
     public Rect rect
