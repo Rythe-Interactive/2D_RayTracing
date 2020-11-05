@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if (UNITY_EDITOR)
 public class RayVisualizer : MonoBehaviour
 {
     private List<Ray> m_rays;
@@ -76,3 +77,4 @@ public class RayVisualizer : MonoBehaviour
         m_rays.Clear();
     }
 }
+#endif

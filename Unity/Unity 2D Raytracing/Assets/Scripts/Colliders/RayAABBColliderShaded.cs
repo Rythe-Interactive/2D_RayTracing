@@ -76,7 +76,7 @@ public class RayAABBColliderShaded : RayCollider
         }
         
         // Check if light is on the rect
-        if (ray.position.x >= left && ray.position.x <= right && ray.position.y >= top && ray.position.y <= bottom)
+        if (ray.position.x >= left && ray.position.x <= right && ray.position.y <= top && ray.position.y >= bottom)
         {
             Vector2 pixelOnBg = textureSpaceCoord(ray.position, m_sprite);
             hit = new RayHit(ray, ray.position, new Vector2Int((int)pixelOnBg.x, (int)pixelOnBg.y), ray.direction.normalized, this, m_sprite.texture.GetPixel((int)pixelOnBg.x, (int)pixelOnBg.y));
@@ -143,6 +143,7 @@ public class RayAABBColliderShaded : RayCollider
             hit = new RayHit(null);
             return false;
         }
+        Debug.Log(normal);
         Vector2 pixel = textureSpaceCoord(poi, m_sprite);
         hit = new RayHit(ray, poi, new Vector2Int((int)pixel.x, (int)pixel.y), normal, this, m_sprite.texture.GetPixel((int)pixel.x, (int)pixel.y));
         if (m_isBackground) hit.fromInsideShape = true;
@@ -161,7 +162,8 @@ public class RayAABBColliderShaded : RayCollider
         }
         else
         {
-            strength = ((hit.ray.intensity / distToRay) - 1) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction)) * m_lightMultiplier;
+            //strength = ((hit.ray.intensity / distToRay) - 1) * Mathf.Abs(Vector2.Dot(hit.normal, hit.ray.direction)) * m_lightMultiplier;
+            strength = ((hit.ray.intensity - distToRay) - 1) * m_lightMultiplier;
             if (strength <= 0)
             {
                 return;
@@ -176,8 +178,9 @@ public class RayAABBColliderShaded : RayCollider
         }
         float maxDistWithLight = strength * m_sprite.pixelsPerUnit;
         Vector2 scale = this.transform.lossyScale;
-        float max = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width * scale.x, 2) + Mathf.Pow(m_lightMapTexture.height * scale.y, 2));
-        int loops = Mathf.FloorToInt(Mathf.Min(max, (maxDistWithLight))) + 1;
+        //float max = Mathf.Sqrt(Mathf.Pow(m_lightMapTexture.width * scale.x, 2) + Mathf.Pow(m_lightMapTexture.height * scale.y, 2));
+        //int loops = Mathf.FloorToInt(Mathf.Min(max, (maxDistWithLight))) + 1;
+        int loops = Mathf.FloorToInt(maxDistWithLight + 1);
         for (int i = 0; i < loops; ++i)
         {
             Vector2 pxl = hit.pixel + hit.ray.direction.normalized * i;
@@ -197,10 +200,6 @@ public class RayAABBColliderShaded : RayCollider
                     break;
                 }
                 m_lightMapTexture.SetPixel((int)pxl.x, (int)pxl.y, m_lightMapTexture.GetPixel((int)pxl.x, (int)pxl.y) + hit.ray.color * strengthForPixel);
-            }
-            else
-            {
-                // Pixel is out of image
             }
         }
     }
@@ -245,28 +244,28 @@ public class RayAABBColliderShaded : RayCollider
     {
         get
         {
-            return position - new Vector2(rect.width / 2, rect.height / 2);
+            return position + new Vector2(-rect.width / 2, rect.height / 2);
         }
     }
     public Vector2 leftBottom
     {
         get
         {
-            return position + new Vector2(-rect.width / 2, rect.height / 2);
+            return position + new Vector2(-rect.width / 2, -rect.height / 2);
         }
     }
     public Vector2 rightTop
     {
         get
         {
-            return position + new Vector2(rect.width / 2, -rect.height / 2);
+            return position + new Vector2(rect.width / 2, rect.height / 2);
         }
     }
     public Vector2 rightBottom
     {
         get
         {
-            return position + new Vector2(rect.width / 2, rect.height / 2);
+            return position + new Vector2(rect.width / 2, -rect.height / 2);
         }
     }
 
@@ -289,7 +288,7 @@ public class RayAABBColliderShaded : RayCollider
     {
         get
         {
-            return position.y - rect.height / 2;
+            return position.y + rect.height / 2;
         }
     }
 
@@ -297,7 +296,7 @@ public class RayAABBColliderShaded : RayCollider
     {
         get
         {
-            return position.y + rect.height / 2;
+            return position.y - rect.height / 2;
         }
     }
     #endregion
@@ -319,7 +318,7 @@ public class RayRectBackgroundColliderShadedEditor : Editor
         Vector2 rb = m_collider.rightBottom;
         Handles.DrawLine(lt, lb);
         Handles.DrawLine(lb, rb);
-        Handles.DrawLine(rt, rt);
+        Handles.DrawLine(rb, rt);
         Handles.DrawLine(rt, lt);
 
     }

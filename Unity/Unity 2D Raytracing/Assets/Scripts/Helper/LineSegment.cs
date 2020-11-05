@@ -32,7 +32,8 @@ public struct LineSegment
         if (u > 0 && t > 0 && t < 1)
         {
             // Collision
-            poi = ray.position + ray.direction * t;
+            poi = ray.position + ray.direction.normalized * u;
+            //poi = m_start + direction.normalized * t;
             toi = t;
             return true;
         }
@@ -74,6 +75,6 @@ public struct LineSegment
     public Vector2 normal()
     {
         Vector2 dir = direction;
-        return new Vector2(-dir.y, dir.x);
+        return new Vector2(-dir.y, dir.x).normalized;
     }
 }
