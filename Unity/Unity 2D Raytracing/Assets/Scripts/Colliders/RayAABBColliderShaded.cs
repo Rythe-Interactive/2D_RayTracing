@@ -209,18 +209,17 @@ public class RayAABBColliderShaded : RayCollider
         m_lightMapTexture.filterMode = FilterMode.Trilinear;
         m_lightMapTexture.anisoLevel = 4;
         m_lightMapTexture.Apply(true);
+    }
 
+    public override void clearHits()
+    {
+        m_hits.Clear();
         // Reset light map
         for (int y = 0; y < m_lightMapTexture.height; ++y)
             for (int x = 0; x < m_lightMapTexture.width; ++x)
             {
                 m_lightMapTexture.SetPixel(x, y, Color.clear);
             }
-    }
-
-    public override void clearHits()
-    {
-        m_hits.Clear();
     }
 
     private void updateLines()
