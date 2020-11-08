@@ -37,7 +37,7 @@ public class RayCircleColliderShaded : RayCollider
         m_lightMapTexture.Apply(true);
         m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
-        m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 5);
+        m_rayTracingOutlineMaterial.SetFloat("_MipLevel0", 5);
         applyHits();
         m_hits = new List<RayHit>();
     }

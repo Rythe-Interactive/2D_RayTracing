@@ -11,6 +11,7 @@ public class RayAABBColliderShaded : RayCollider
     [SerializeField] private Texture2D m_lightMapTexture;
     [SerializeField] private float m_lightMultiplier = 1.0f;
     [SerializeField] private bool m_isBackground = false;
+    [SerializeField] private Vector3 m_mipMapLevels = new Vector3(-1, -1, -1); 
     private Sprite m_sprite;
     private Material m_rayTracingOutlineMaterial;
     private float m_previousLightMultiplier;
@@ -43,7 +44,9 @@ public class RayAABBColliderShaded : RayCollider
         m_lightMapTexture.Apply(true);
         m_rayTracingOutlineMaterial.SetTexture("_MainTex", m_sprite.texture);
         m_rayTracingOutlineMaterial.SetTexture("_lightMapTexture", m_lightMapTexture);
-        m_rayTracingOutlineMaterial.SetFloat("_MipLevel", 5);
+        if(m_mipMapLevels.x >= 0) m_rayTracingOutlineMaterial.SetFloat("_MipLevel0", m_mipMapLevels.x);
+        if (m_mipMapLevels.y >= 0) m_rayTracingOutlineMaterial.SetFloat("_MipLevel1", m_mipMapLevels.y);
+        if (m_mipMapLevels.z >= 0) m_rayTracingOutlineMaterial.SetFloat("_MipLevel2", m_mipMapLevels.z);
         applyHits();
         m_hits = new List<RayHit>();
 
@@ -174,7 +177,7 @@ public class RayAABBColliderShaded : RayCollider
         if (hit.ray.hasBounce() && hit.ray.getBounce().origin != this)
         {
             Vector2 end = hit.ray.getBounce().position;
-            distToEnd = Mathf.Abs((end - hit.ray.position).magnitude) * m_sprite.pixelsPerUnit;
+            distToEnd = Mathf.Abs((end - hit.ray.position).magnitude) * m_sprite.pixelsPerUnit / this.transform.localScale.x;
         }
         float maxDistWithLight = strength * m_sprite.pixelsPerUnit;
         Vector2 scale = this.transform.lossyScale;
