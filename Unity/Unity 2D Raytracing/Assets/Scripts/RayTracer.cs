@@ -8,6 +8,7 @@ public class RayTracer : MonoBehaviour
     [SerializeField] int m_colliderCount = 0;
     [SerializeField] int m_rayCount = 0;
     [SerializeField] int m_lightCount = 0;
+    [SerializeField] bool m_forceReTrace = false;
     private List<RayCollider> m_colliders;
     private List<RayHit> m_rayHits;
     private List<Ray> m_rays;
@@ -76,8 +77,9 @@ public class RayTracer : MonoBehaviour
     public void Update()
     {
         if (m_rays == null) return;
-        if (!m_reTrace) return;
+        if (!m_reTrace && !m_forceReTrace) return;
         m_reTrace = false;
+        m_forceReTrace = false;
         m_rayHits?.Clear();
         if (m_colliders != null)
         {

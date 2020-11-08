@@ -330,7 +330,6 @@ public class RayRectBackgroundColliderShadedEditor : Editor
         Handles.DrawLine(lb, rb);
         Handles.DrawLine(rb, rt);
         Handles.DrawLine(rt, lt);
-
     }
 }
 #endif
