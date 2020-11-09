@@ -32,7 +32,9 @@ public class Ray
         }
         else ray = new Ray(position, direction, origin, intensity, color, maxDepth);
 
+#if (UNITY_EDITOR)
         RayVisualizer.instance.register(ray);
+#endif
         return ray; 
     }
 
@@ -49,7 +51,9 @@ public class Ray
     public static void recycleRay(Ray ray)
     {
         if (m_recycledRays == null) m_recycledRays = new List<Ray>();
+#if (UNITY_EDITOR)
         RayVisualizer.instance.unRegister(ray);
+#endif
         m_recycledRays.Add(ray);
     }
 
@@ -81,7 +85,9 @@ public class Ray
 
     ~Ray()
     {
+#if (UNITY_EDITOR)
         RayVisualizer.instance.unRegister(this);
+#endif
     }
 
     #region getters

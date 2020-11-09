@@ -64,7 +64,6 @@ public abstract class RayTracedLight : MonoBehaviour
             for (int i = 0; i < m_rays.Count; ++i)
             {
                 m_tracer.unRegister(m_rays[i]);
-                RayVisualizer.instance.unRegister(m_rays[i]);
             }
         }
         m_tracer.unRegister(this);
@@ -78,7 +77,6 @@ public abstract class RayTracedLight : MonoBehaviour
             for (int i = 0; i < m_rays.Count; ++i)
             {
                 m_tracer.register(m_rays[i]);
-                RayVisualizer.instance.register(m_rays[i]);
             }
         }
         m_tracer.register(this);

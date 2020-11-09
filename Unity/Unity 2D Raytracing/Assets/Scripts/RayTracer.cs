@@ -22,6 +22,11 @@ public class RayTracer : MonoBehaviour
 
     }
 
+    public void forceReTrace()
+    {
+        m_forceReTrace = true;
+    }
+
     public void register(Ray ray)
     {
         if(m_rays == null) m_rays = new List<Ray>();

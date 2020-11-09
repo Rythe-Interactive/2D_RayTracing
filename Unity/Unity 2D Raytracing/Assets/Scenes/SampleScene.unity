@@ -312,6 +312,7 @@ MonoBehaviour:
   m_lightMapTexture: {fileID: 0}
   m_lightMultiplier: 1
   m_isBackground: 0
+  m_mipMapLevels: {x: -1, y: -1, z: -1}
 --- !u!212 &205669749
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -436,6 +437,7 @@ MonoBehaviour:
   m_lightMapTexture: {fileID: 0}
   m_lightMultiplier: 1
   m_isBackground: 0
+  m_mipMapLevels: {x: -1, y: -1, z: -1}
 --- !u!212 &316324980
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -534,6 +536,7 @@ MonoBehaviour:
   m_colliderCount: 0
   m_rayCount: 0
   m_lightCount: 0
+  m_forceReTrace: 0
 --- !u!4 &427748358
 Transform:
   m_ObjectHideFlags: 0
@@ -1108,6 +1111,7 @@ MonoBehaviour:
   m_lightMapTexture: {fileID: 0}
   m_lightMultiplier: 1
   m_isBackground: 1
+  m_mipMapLevels: {x: -1, y: -1, z: -1}
 --- !u!212 &695605998
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2372,7 +2376,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2028849205}
   m_LocalRotation: {x: -0, y: -0, z: -0.38268343, w: 0.92387956}
-  m_LocalPosition: {x: -9.6, y: 5.4, z: 0}
+  m_LocalPosition: {x: -8.57, y: 4.37, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1423970735}
