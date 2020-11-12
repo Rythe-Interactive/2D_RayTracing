@@ -164,10 +164,10 @@ public class Ray
             resetReflect();
             return null;
         }
-        else if (m_hasBounce && hit.Equals(m_bounceInfo))
-        {
-            return m_bounce;
-        }
+        //else if (m_hasBounce && hit.Equals(m_bounceInfo))
+        //{
+        //    return m_bounce;
+        //}
         else if (m_maxDepth == 0) return null;
         
         //Reflect happens
@@ -178,6 +178,7 @@ public class Ray
             if(intensity <= 0)
             {
                 // The new ray will not have enough intensity to transfer
+                resetReflect();
                 return null;
             }
             m_bounce = requestRay(hit.point, reflectDir, hit.collider, intensity, m_color * hit.color, m_maxDepth - 1);
@@ -186,8 +187,15 @@ public class Ray
         }
         else
         {
+            float intensity = hit.ray.m_intensity - Mathf.Abs((hit.point - hit.ray.position).magnitude);
+            if (intensity <= 0)
+            {
+                // The new ray will not have enough intensity to transfer
+                resetReflect();
+                return null;
+            }
             Color cl = m_color * hit.color;
-            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, hit.collider, hit.ray.intensity, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
+            m_bounce.reUse(hit.point.x, hit.point.y, reflectDir.x, reflectDir.y, hit.collider, intensity, cl.r, cl.g, cl.b, cl.a, m_maxDepth - 1);
         }
         m_hasBounce = true;
         m_bounce.m_parent = this;

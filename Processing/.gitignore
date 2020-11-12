@@ -5,3 +5,5 @@ Raycasting/data/shaders/texture.vs
 Raycasting/data/shaders/texture.fs
 !RayCasting/data/shaders/rayTracing.vs
 !Raycasting/data/shaders/rayTracing.fs
+RayCasting/application.windows32
+RayCasting/application.windows64
